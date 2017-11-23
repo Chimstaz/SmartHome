@@ -28,6 +28,7 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include "collections.h"
 
 const String MVM = String("MVM");
 const String LED = String("LED");
@@ -71,8 +72,8 @@ public:
   //virtual ~OutDevice();
 };
 
-OutDevice* outDevices = NULL;
-Sensor* sensors = NULL;
+Array<OutDevice*> *outDevices = NULL;
+Array<Sensor*> *sensors = NULL;
 
 
 class LedOutput: public OutDevice{
@@ -129,18 +130,18 @@ void setup_wifi() {
 }
 
 
-Sensor createSensor(JsonObject &conf){
+Sensor* createSensor(JsonObject &conf){
   String v = conf["Type"].as<String>(); // FIXME:
   if(v == String(MVM)){
-    return MovementSensor(conf["Pin"][0], conf["Channels"]);
+    return new MovementSensor(conf["Pin"][0], conf["Channels"]);
   }
   //if(v == String(""))
 }
 
-OutDevice createOutDevice(JsonObject &conf){
+OutDevice* createOutDevice(JsonObject &conf){
     String v = conf["Type"].as<String>();
     if(v == String("LED")){
-      return LedOutput(conf["Pin"][0], conf["Channels"]);
+      return new LedOutput(conf["Pin"][0], conf["Channels"]);
     }
 }
 
@@ -155,25 +156,25 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
 
     if(sensors != NULL){
-      delete [] sensors;
+      delete sensors;
     }
     JsonArray& sensorsJsonArray = configuration["Sensors"];
-    sensors = new Sensor[sensorsJsonArray.size()];
+    sensors = new Array<Sensor*>(sensorsJsonArray.size(), true);
     int i = 0;
     for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
     {
-      sensors[i] = createSensor(*it);
+      (*sensors)[i] = createSensor(*it);
     }
 
     if(outDevices != NULL){
-      delete [] outDevices;
+      delete outDevices;
     }
     JsonArray& outDevicesJsonArray = configuration["OutDevices"];
-    outDevices = new OutDevice[outDevicesJsonArray.size()];
+    outDevices = new Array<OutDevice*>(outDevicesJsonArray.size(), true);
     i = 0;
     for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
     {
-      outDevices[i] = createOutDevice(*it);
+      (*outDevices)[i] = createOutDevice(*it);
     }
   }
   Serial.print("Message arrived [");

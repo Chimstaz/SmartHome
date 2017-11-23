@@ -171,13 +171,22 @@ void configure(char* payload){
   JsonObject& configuration = configurationBuffer.parseObject(payload);
   if(!configuration.success()){
     // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // do nothing??
+    return;
   }
 
+  // clear old config
   outChannelsList[0] = "";
+  inChannelsList[0] = "";
 
   for(int i = 0; sensors[i] != NULL; i++){
     delete sensors[i];
   }
+
+  for(int i = 0; outDevices[i] != NULL; i++){
+    delete outDevices[i];
+  }
+  ///////////////////
 
   JsonArray& sensorsJsonArray = configuration["Sensors"];
   int i = 0;
@@ -189,11 +198,7 @@ void configure(char* payload){
   sensors[i] = NULL;
   sensors.trim(sensorsJsonArray.size()+1);
 
-  inChannelsList[0] = "";
 
-  for(int i = 0; outDevices[i] != NULL; i++){
-    delete outDevices[i];
-  }
   JsonArray& outDevicesJsonArray = configuration["OutDevices"];
   i = 0;
   for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)

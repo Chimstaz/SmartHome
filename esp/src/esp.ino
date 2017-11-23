@@ -148,78 +148,70 @@ OutDevice* createOutDevice(JsonObject &conf){
     }
 }
 
+void addChannels(Array<String> &channelsList, JsonArray &channels){
+  for(auto c: channels){
+    const char* id = c["ID"].as<char*>();
+    for(int j = 0; ; j++){
+      if(channelsList[j].equals(id)){
+        c["ID"] = j;
+        return;
+      }
+      if(channelsList[j] == ""){
+        channelsList[j] = id;
+        channelsList[j+1] = "";
+        c["ID"] = j;
+        return;
+      }
+    }
+  }
+}
+
+void configure(char* payload){
+  StaticJsonBuffer<1000> configurationBuffer;
+  JsonObject& configuration = configurationBuffer.parseObject(payload);
+  if(!configuration.success()){
+    // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  }
+
+  outChannelsList[0] = "";
+
+  for(int i = 0; sensors[i] != NULL; i++){
+    delete sensors[i];
+  }
+
+  JsonArray& sensorsJsonArray = configuration["Sensors"];
+  int i = 0;
+  for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
+  {
+    addChannels(outChannelsList, (*it)["Channels"]);
+    sensors[i] = createSensor(*it);
+  }
+  sensors[i] = NULL;
+  sensors.trim(sensorsJsonArray.size()+1);
+
+  inChannelsList[0] = "";
+
+  for(int i = 0; outDevices[i] != NULL; i++){
+    delete outDevices[i];
+  }
+  JsonArray& outDevicesJsonArray = configuration["OutDevices"];
+  i = 0;
+  for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
+  {
+    JsonArray& channels = (*it)["Channels"];
+    for(auto group: channels){
+      addChannels(inChannelsList, group);
+    }
+    outDevices[i] = createOutDevice(*it);
+  }
+  outDevices[i] = NULL;
+  outDevices.trim(outDevicesJsonArray.size()+1);
+}
+
 void callback(char* topic, byte* payload, unsigned int length) {
   if(String(topic) == String(esp_id)){
-    // TODO: move to configure()
-    StaticJsonBuffer<1000> configurationBuffer;
     char* p = (char*) payload; /// WTF????
-    JsonObject& configuration = configurationBuffer.parseObject(p);
-    if(!configuration.success()){
-      // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    }
-
-    outChannelsList[0] = "";
-
-    for(int i = 0; sensors[i] != NULL; i++){
-      delete sensors[i];
-    }
-
-    JsonArray& sensorsJsonArray = configuration["Sensors"];
-    int i = 0;
-    for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
-    {
-      JsonArray& channels = (*it)["Channels"];
-      for(auto c: channels){
-        const char* id = c["ID"].as<char*>();
-        for(int j = 0; ; j++){
-          if(outChannelsList[j].equals(id)){
-            c["ID"] = j;
-            break;
-          }
-          if(outChannelsList[j] == ""){
-            outChannelsList[j] = id;
-            outChannelsList[j+1] = "";
-            c["ID"] = j;
-            break;
-          }
-        }
-      }
-      sensors[i] = createSensor(*it);
-    }
-    sensors[i] = NULL;
-    sensors.trim(sensorsJsonArray.size()+1);
-
-    inChannelsList[0] = "";
-
-    for(int i = 0; outDevices[i] != NULL; i++){
-      delete outDevices[i];
-    }
-    JsonArray& outDevicesJsonArray = configuration["OutDevices"];
-    i = 0;
-    for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
-    {
-      JsonArray& channels = (*it)["Channels"];
-      for(auto group: channels){
-        for(auto c: (JsonArray&)group){
-          const char* id = c["ID"].as<char*>();
-          for(int j = 0; ; j++){
-            if(inChannelsList[j].equals(id)){
-              c["ID"] = j;
-              break;
-            }
-            if(inChannelsList[j] == ""){
-              inChannelsList[j] = id;
-              inChannelsList[j+1] = "";
-              c["ID"] = j;
-              break;
-            }
-          }
-        }
-      }
-      outDevices[i] = createOutDevice(*it);
-    }
-    outDevices[i] = NULL;
-    outDevices.trim(outDevicesJsonArray.size()+1);
+    configure(p);
   }
   else {
     for(int i = 0; inChannelsList[i] != ""; i++ ){

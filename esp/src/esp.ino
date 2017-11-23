@@ -23,14 +23,21 @@
 
 */
 
+
+
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
+const String MVM = String("MVM");
+const String LED = String("LED");
 // Update these with values suitable for your network.
 
 const char* ssid = "esp";
 const char* password = "haslo8266";
-const char* mqtt_server = "broker.mqtt-dashboard.com";
+const char* mqtt_server = "192.168.0.104";
+
+const char* esp_id = "ESP8266";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -38,8 +45,68 @@ long lastMsg = 0;
 char msg[50];
 int value = 0;
 
+
+class Sensor{
+public:
+  static void subscribe(JsonArray& channels){
+    for(auto v: channels){
+      client.subscribe(v.as<char*>());
+    }
+  }
+  //virtual void update();
+  //virtual String getValue();
+  //virtual ~Sensor();
+};
+
+class OutDevice{
+public:
+  static void subscribe(JsonArray& channels){
+    for(auto v: channels){
+      // FIXME:
+      client.subscribe(v.as<char*>());
+    }
+  }
+  //virtual void update();
+  //virtual String getValue();
+  //virtual ~OutDevice();
+};
+
+OutDevice* outDevices = NULL;
+Sensor* sensors = NULL;
+
+
+class LedOutput: public OutDevice{
+public:
+  LedOutput(int Pin, JsonArray& channels){
+
+  }
+
+  void update(){
+
+  }
+
+  String getValue(){
+
+  }
+};
+
+class MovementSensor: public Sensor{
+public:
+  MovementSensor(int Pin, JsonArray& channels){
+
+  }
+
+  void update(){
+
+  }
+
+  String getValue(){
+
+  }
+};
+
 void setup_wifi() {
-  
+
   delay(10);
   // We start by connecting to a WiFi network
   Serial.println();
@@ -61,7 +128,54 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+
+Sensor createSensor(JsonObject &conf){
+  String v = conf["Type"].as<String>(); // FIXME:
+  if(v == String(MVM)){
+    return MovementSensor(conf["Pin"][0], conf["Channels"]);
+  }
+  //if(v == String(""))
+}
+
+OutDevice createOutDevice(JsonObject &conf){
+    String v = conf["Type"].as<String>();
+    if(v == String("LED")){
+      return LedOutput(conf["Pin"][0], conf["Channels"]);
+    }
+}
+
 void callback(char* topic, byte* payload, unsigned int length) {
+  if(String(topic) == String(esp_id)){
+    // TODO: move to configure()
+    StaticJsonBuffer<1000> configurationBuffer;
+    char* p = (char*) payload; /// WTF????
+    JsonObject& configuration = configurationBuffer.parseObject(p);
+    if(!configuration.success()){
+      // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+
+    if(sensors != NULL){
+      delete [] sensors;
+    }
+    JsonArray& sensorsJsonArray = configuration["Sensors"];
+    sensors = new Sensor[sensorsJsonArray.size()];
+    int i = 0;
+    for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
+    {
+      sensors[i] = createSensor(*it);
+    }
+
+    if(outDevices != NULL){
+      delete [] outDevices;
+    }
+    JsonArray& outDevicesJsonArray = configuration["OutDevices"];
+    outDevices = new OutDevice[outDevicesJsonArray.size()];
+    i = 0;
+    for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
+    {
+      outDevices[i] = createOutDevice(*it);
+    }
+  }
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
@@ -95,6 +209,14 @@ void reconnect() {
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("inTopic");
+      Serial.print("1");
+      client.subscribe("inTopic");
+      Serial.print("2");
+      client.subscribe("inTopic");
+      Serial.print("3");
+      client.subscribe("inTopic");
+      Serial.print("4");
+      client.subscribe(esp_id);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());

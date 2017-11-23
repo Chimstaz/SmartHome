@@ -72,8 +72,9 @@ public:
   //virtual ~OutDevice();
 };
 
-Array<OutDevice*> *outDevices = NULL;
-Array<Sensor*> *sensors = NULL;
+Array<OutDevice*> outDevices(2);
+Array<Sensor*> sensors(2);
+Array<String> channelsList(2);
 
 
 class LedOutput: public OutDevice{
@@ -155,27 +156,67 @@ void callback(char* topic, byte* payload, unsigned int length) {
       // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
-    if(sensors != NULL){
-      delete sensors;
+    for(int i = 0; i < channelsList.size(); i++){
+      channelsList[i] = "";
     }
+
+    for(int i = 0; sensors[i] != NULL; i++){
+      delete sensors[i];
+    }
+
     JsonArray& sensorsJsonArray = configuration["Sensors"];
-    sensors = new Array<Sensor*>(sensorsJsonArray.size(), true);
     int i = 0;
     for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
     {
-      (*sensors)[i] = createSensor(*it);
+      JsonArray& channels = (*it)["Channels"];
+      for(auto c: channels){
+        const char* id = c["ID"].as<char*>();
+        for(int j = 0; ; j++){
+          if(channelsList[j].equals(id)){
+            c["ID"] = j;
+            break;
+          }
+          if(channelsList[j] == ""){
+            channelsList[j] = id;
+            c["ID"] = j;
+            break;
+          }
+        }
+      }
+      sensors[i] = createSensor(*it);
     }
+    sensors[i] = NULL;
+    sensors.trim(sensorsJsonArray.size()+1);
 
-    if(outDevices != NULL){
-      delete outDevices;
+
+    for(int i = 0; outDevices[i] != NULL; i++){
+      delete outDevices[i];
     }
     JsonArray& outDevicesJsonArray = configuration["OutDevices"];
-    outDevices = new Array<OutDevice*>(outDevicesJsonArray.size(), true);
     i = 0;
     for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
     {
-      (*outDevices)[i] = createOutDevice(*it);
+      JsonArray& channels = (*it)["Channels"];
+      for(auto group: channels){
+        for(auto c: (JsonArray&)group){
+          const char* id = c["ID"].as<char*>();
+          for(int j = 0; ; j++){
+            if(channelsList[j].equals(id)){
+              c["ID"] = j;
+              break;
+            }
+            if(channelsList[j] == ""){
+              channelsList[j] = id;
+              c["ID"] = j;
+              break;
+            }
+          }
+        }
+      }
+      outDevices[i] = createOutDevice(*it);
     }
+    outDevices[i] = NULL;
+    outDevices.trim(outDevicesJsonArray.size()+1);
   }
   Serial.print("Message arrived [");
   Serial.print(topic);

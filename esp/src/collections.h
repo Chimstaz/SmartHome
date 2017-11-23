@@ -1,27 +1,24 @@
 
 template <typename T> class Array{
 private:
-  int size;
+  int _size;
   T* data;
-  bool ifDeleteElements;
 public:
-  Array(int size, bool ifDeleteElements=false){
-    this->size = size;
-    this->ifDeleteElements = ifDeleteElements;
+  Array(int size){
+    this->_size = size;
     this->data = new T[size];
-    clear();
+    memset(data, 0, sizeof(T)*_size);
   }
 
   T& operator[] (int el) {
-    if(el >= size){
-      int newSize = size<<1;
+    if(el >= _size){
+      int newSize = _size<<1;
       while(newSize <= el) newSize <<= 1;
       T* newData = new T[newSize];
-      memset(newData, 0, sizeof(T)*newSize);
-      memcpy(newData, data, sizeof(T)*size);
+      memcpy(newData, data, sizeof(T)*_size);
       delete [] data;
       data = newData;
-      size = newSize;
+      _size = newSize;
     }
     return data[el];
   }
@@ -30,22 +27,19 @@ public:
     return data[el];
   }
 
-  void deleteElements(){
-    for(int i = 0; i < size; i++){
-      if(data[i] != 0){
-        delete data[i];
-      }
-    }
+  void trim(int n){
+    T* newData = new T[n];
+    memcpy(newData, data, sizeof(T)*n);
+    delete [] data;
+    data = newData;
+    _size = n;
   }
 
-  void clear(){
-    memset(data, 0, sizeof(T)*size);
+  int size(){
+    return _size;
   }
 
   ~Array(){
-    if(ifDeleteElements){
-      deleteElements();
-    }
     delete [] data;
   }
 };

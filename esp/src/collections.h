@@ -7,7 +7,6 @@ public:
   Array(int size){
     this->_size = size;
     this->data = new T[size];
-    memset(data, 0, sizeof(T)*_size);
   }
 
   T& operator[] (int el) {

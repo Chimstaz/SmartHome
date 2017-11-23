@@ -67,14 +67,16 @@ public:
       client.subscribe(v.as<char*>());
     }
   }
-  //virtual void update();
+  virtual void update();
   //virtual String getValue();
   //virtual ~OutDevice();
 };
 
 Array<OutDevice*> outDevices(2);
 Array<Sensor*> sensors(2);
-Array<String> channelsList(2);
+Array<String> inChannelsList(2);
+Array<String> outChannelsList(2);
+Array<int> values(2);
 
 
 class LedOutput: public OutDevice{
@@ -156,9 +158,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
-    for(int i = 0; i < channelsList.size(); i++){
-      channelsList[i] = "";
-    }
+    outChannelsList[0] = "";
 
     for(int i = 0; sensors[i] != NULL; i++){
       delete sensors[i];
@@ -172,12 +172,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
       for(auto c: channels){
         const char* id = c["ID"].as<char*>();
         for(int j = 0; ; j++){
-          if(channelsList[j].equals(id)){
+          if(outChannelsList[j].equals(id)){
             c["ID"] = j;
             break;
           }
-          if(channelsList[j] == ""){
-            channelsList[j] = id;
+          if(outChannelsList[j] == ""){
+            outChannelsList[j] = id;
+            outChannelsList[j+1] = "";
             c["ID"] = j;
             break;
           }
@@ -188,6 +189,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     sensors[i] = NULL;
     sensors.trim(sensorsJsonArray.size()+1);
 
+    inChannelsList[0] = "";
 
     for(int i = 0; outDevices[i] != NULL; i++){
       delete outDevices[i];
@@ -201,12 +203,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
         for(auto c: (JsonArray&)group){
           const char* id = c["ID"].as<char*>();
           for(int j = 0; ; j++){
-            if(channelsList[j].equals(id)){
+            if(inChannelsList[j].equals(id)){
               c["ID"] = j;
               break;
             }
-            if(channelsList[j] == ""){
-              channelsList[j] = id;
+            if(inChannelsList[j] == ""){
+              inChannelsList[j] = id;
+              inChannelsList[j+1] = "";
               c["ID"] = j;
               break;
             }
@@ -218,23 +221,33 @@ void callback(char* topic, byte* payload, unsigned int length) {
     outDevices[i] = NULL;
     outDevices.trim(outDevicesJsonArray.size()+1);
   }
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
+  else {
+    for(int i = 0; inChannelsList[i] != ""; i++ ){
+      if(inChannelsList[i] == topic){
+        values[i] = ((char)payload[0] == '1');
+        for(int j = 0; outDevices[j] != NULL; j++){
+          outDevices[j]->update();
+        }
+        return;
+      }
+    }
+    Serial.print("Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
 
-  // Switch on the LED if an 1 was received as first character
-  if ((char)payload[0] == '1') {
-    digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-    // but actually the LED is on; this is because
-    // it is acive low on the ESP-01)
-  } else {
-    digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+    // Switch on the LED if an 1 was received as first character
+    if ((char)payload[0] == '1') {
+      digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
+        // but actually the LED is on; this is because
+        // it is acive low on the ESP-01)
+    } else {
+      digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+    }
   }
-
 }
 
 void reconnect() {
@@ -270,6 +283,10 @@ void reconnect() {
 }
 
 void setup() {
+  outDevices[0] = NULL;
+  sensors[0] = NULL;
+  inChannelsList[0] = "";
+  outChannelsList[0] = "";
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
   setup_wifi();

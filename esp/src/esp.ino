@@ -176,6 +176,9 @@ void configure(char* payload){
   }
 
   // clear old config
+  for(int i = 0; inChannelsList[i] != ""; i++){
+    client.unsubscribe(inChannelsList[i].c_str());
+  }
   outChannelsList[0] = "";
   inChannelsList[0] = "";
 
@@ -211,6 +214,11 @@ void configure(char* payload){
   }
   outDevices[i] = NULL;
   outDevices.trim(outDevicesJsonArray.size()+1);
+
+  for(int i = 0; inChannelsList[i] != ""; i++){
+    values[i] = 0;
+    client.subscribe(inChannelsList[i].c_str());
+  }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {

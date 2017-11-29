@@ -67,31 +67,81 @@ public:
       client.subscribe(v.as<char*>());
     }
   }
-  virtual void update();
-  //virtual String getValue();
-  //virtual ~OutDevice();
+  virtual void update()=0;
+  virtual String getValue()=0;
+  virtual ~OutDevice(){}
 };
 
 Array<OutDevice*> outDevices(2);
 Array<Sensor*> sensors(2);
-Array<String> inChannelsList(2);
-Array<String> outChannelsList(2);
+Array<String*> inChannelsList(2);
+Array<String*> outChannelsList(2);
 Array<int> values(2);
 
 
 class LedOutput: public OutDevice{
 public:
   LedOutput(int Pin, JsonArray& channels){
+    this->pin = Pin;
+    pinMode(pin, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
+    channelsGroups = 0;
+    for(auto group = channels.begin(); group != channels.end(); ++group, ++channelsGroups){
+      this->channels[channelsGroups] = new Array<int>();
+      int j = 0;
+      for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
+        this->channels[channelsGroups]->at(j) = c->as<JsonObject>()["ID"].as<int>();
+      }
+      (*(this->channels[channelsGroups]))[j] = -1;
+    }
+    value = 0;
+    off();
+  }
 
+  void on(){
+    value = 1;
+    digitalWrite(pin, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      // but actually the LED is on; this is because
+      // it is acive low on the ESP-01)
+  }
+
+  void off(){
+    value = 0;
+    digitalWrite(pin, HIGH);  // Turn the LED off by making the voltage HIGH
   }
 
   void update(){
-
+      for(int i = 0; i < channelsGroups; ++i){
+        for(int j = 0; ; j++){
+          int id = (*channels[i])[j];
+          if(id != -1){
+            if(values[id] == 0){
+              break;
+            }
+          }
+          else{
+            on();
+            return;
+          }
+        }
+      }
+      off();
   }
 
   String getValue(){
-
+    return String(value);
   }
+
+  ~LedOutput(){
+    for(int i = 0; i < channelsGroups; ++i){
+      delete channels[i];
+    }
+    pinMode(pin, INPUT); // default settings
+  }
+private:
+  int value;
+  int pin;
+  int channelsGroups;
+  Array<Array<int>*> channels;
 };
 
 class MovementSensor: public Sensor{
@@ -148,17 +198,17 @@ OutDevice* createOutDevice(JsonObject &conf){
     }
 }
 
-void addChannels(Array<String> &channelsList, JsonArray &channels){
+void addChannels(Array<String*> &channelsList, JsonArray &channels){
   for(auto c: channels){
     const char* id = c["ID"].as<char*>();
     for(int j = 0; ; j++){
-      if(channelsList[j].equals(id)){
+      if(channelsList[j] == NULL){
+        channelsList[j] = new String(id);
+        channelsList[j+1] = NULL;
         c["ID"] = j;
         return;
       }
-      if(channelsList[j] == ""){
-        channelsList[j] = id;
-        channelsList[j+1] = "";
+      if(channelsList[j]->equals(id)){
         c["ID"] = j;
         return;
       }
@@ -176,11 +226,12 @@ void configure(char* payload){
   }
 
   // clear old config
-  for(int i = 0; inChannelsList[i] != ""; i++){
-    client.unsubscribe(inChannelsList[i].c_str());
+  for(int i = 0; inChannelsList[i] != NULL; i++){
+    client.unsubscribe(inChannelsList[i]->c_str());
+    delete inChannelsList[i];
   }
-  outChannelsList[0] = "";
-  inChannelsList[0] = "";
+  outChannelsList[0] = NULL;
+  inChannelsList[0] = NULL;
 
   for(int i = 0; sensors[i] != NULL; i++){
     delete sensors[i];
@@ -215,9 +266,9 @@ void configure(char* payload){
   outDevices[i] = NULL;
   outDevices.trim(outDevicesJsonArray.size()+1);
 
-  for(int i = 0; inChannelsList[i] != ""; i++){
+  for(int i = 0; inChannelsList[i] != NULL; i++){
     values[i] = 0;
-    client.subscribe(inChannelsList[i].c_str());
+    client.subscribe(inChannelsList[i]->c_str());
   }
 }
 
@@ -227,8 +278,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     configure(p);
   }
   else {
-    for(int i = 0; inChannelsList[i] != ""; i++ ){
-      if(inChannelsList[i] == topic){
+    for(int i = 0; inChannelsList[i] != NULL; i++ ){
+      if(*inChannelsList[i] == topic){
         values[i] = ((char)payload[0] == '1');
         for(int j = 0; outDevices[j] != NULL; j++){
           outDevices[j]->update();
@@ -290,8 +341,8 @@ void reconnect() {
 void setup() {
   outDevices[0] = NULL;
   sensors[0] = NULL;
-  inChannelsList[0] = "";
-  outChannelsList[0] = "";
+  inChannelsList[0] = NULL;
+  outChannelsList[0] = NULL;
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
   setup_wifi();

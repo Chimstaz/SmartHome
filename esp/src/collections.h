@@ -4,9 +4,17 @@ private:
   int _size;
   T* data;
 public:
-  Array(int size){
+  Array(int size = 2){
     this->_size = size;
     this->data = new T[size];
+  }
+
+  T& at(int el){
+    return this->operator[] (el);
+  }
+
+  const T & at(int el) const{
+    return this->operator[] (el);
   }
 
   T& operator[] (int el) {

@@ -32,6 +32,7 @@
 
 const String MVM = String("MVM");
 const String LED = String("LED");
+const String SERIALDEVICE = String("Serial");
 // Update these with values suitable for your network.
 
 const char* ssid = "esp";
@@ -46,6 +47,9 @@ long lastMsg = 0;
 char msg[50];
 int value = 0;
 
+Array<String*> inChannelsList(2);
+Array<String*> outChannelsList(2);
+Array<int> values(2);
 
 class Sensor{
 public:
@@ -67,49 +71,9 @@ public:
       client.subscribe(v.as<char*>());
     }
   }
-  virtual void update()=0;
-  virtual String getValue()=0;
-  virtual ~OutDevice(){}
-};
-
-Array<OutDevice*> outDevices(2);
-Array<Sensor*> sensors(2);
-Array<String*> inChannelsList(2);
-Array<String*> outChannelsList(2);
-Array<int> values(2);
-
-
-class LedOutput: public OutDevice{
-public:
-  LedOutput(int Pin, JsonArray& channels){
-    this->pin = Pin;
-    pinMode(pin, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
-    channelsGroups = 0;
-    for(auto group = channels.begin(); group != channels.end(); ++group, ++channelsGroups){
-      this->channels[channelsGroups] = new Array<int>();
-      int j = 0;
-      for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
-        this->channels[channelsGroups]->at(j) = c->as<JsonObject>()["ID"].as<int>();
-      }
-      (*(this->channels[channelsGroups]))[j] = -1;
-    }
-    value = 0;
-    off();
-  }
-
-  void on(){
-    value = 1;
-    digitalWrite(pin, LOW);   // Turn the LED on (Note that LOW is the voltage level
-      // but actually the LED is on; this is because
-      // it is acive low on the ESP-01)
-  }
-
-  void off(){
-    value = 0;
-    digitalWrite(pin, HIGH);  // Turn the LED off by making the voltage HIGH
-  }
 
   void update(){
+      Serial.println("Update");
       for(int i = 0; i < channelsGroups; ++i){
         for(int j = 0; ; j++){
           int id = (*channels[i])[j];
@@ -127,6 +91,52 @@ public:
       off();
   }
 
+  virtual String getValue()=0;
+  virtual void on()=0;
+  virtual void off()=0;
+  virtual ~OutDevice(){}
+protected:
+  int channelsGroups;
+  Array<Array<int>*> channels;
+
+  void registerChannels(JsonArray& channels){
+    channelsGroups = 0;
+    for(auto group = channels.begin(); group != channels.end(); ++group, ++channelsGroups){
+      this->channels[channelsGroups] = new Array<int>();
+      int j = 0;
+      for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
+        this->channels[channelsGroups]->at(j) = c->as<JsonObject>()["ID"].as<int>();
+      }
+      (*(this->channels[channelsGroups]))[j] = -1;
+    }
+  }
+};
+
+Array<OutDevice*> outDevices(2);
+Array<Sensor*> sensors(2);
+
+class LedOutput: public OutDevice{
+public:
+  LedOutput(int Pin, JsonArray& channels){
+    this->pin = Pin;
+    pinMode(pin, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
+    registerChannels(channels);
+    value = 0;
+    off();
+  }
+
+  void on(){
+    value = 1;
+    digitalWrite(pin, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      // but actually the LED is on; this is because
+      // it is acive low on the ESP-01)
+  }
+
+  void off(){
+    value = 0;
+    digitalWrite(pin, HIGH);  // Turn the LED off by making the voltage HIGH
+  }
+
   String getValue(){
     return String(value);
   }
@@ -140,9 +150,40 @@ public:
 private:
   int value;
   int pin;
-  int channelsGroups;
-  Array<Array<int>*> channels;
 };
+
+class SerialPrinter: public OutDevice{
+public:
+  SerialPrinter(JsonArray& channels){
+    Serial.println("Creating SerialPrinter");
+    registerChannels(channels);
+    value = 0;
+    off();
+  }
+
+  void on(){
+    value = 1;
+    Serial.println("ON");
+  }
+
+  void off(){
+    value = 0;
+    Serial.println("OFF");
+  }
+
+  String getValue(){
+    return String(value);
+  }
+
+  ~SerialPrinter(){
+    for(int i = 0; i < channelsGroups; ++i){
+      delete channels[i];
+    }
+  }
+private:
+  int value;
+};
+
 
 class MovementSensor: public Sensor{
 public:
@@ -196,6 +237,9 @@ OutDevice* createOutDevice(JsonObject &conf){
     if(v == String("LED")){
       return new LedOutput(conf["Pin"][0], conf["Channels"]);
     }
+    if(v == String("Serial")){
+      return new SerialPrinter((JsonArray&)conf["Channels"]);
+    }
 }
 
 void addChannels(Array<String*> &channelsList, JsonArray &channels){
@@ -217,14 +261,16 @@ void addChannels(Array<String*> &channelsList, JsonArray &channels){
 }
 
 void configure(char* payload){
+  Serial.println(payload);
   StaticJsonBuffer<1000> configurationBuffer;
   JsonObject& configuration = configurationBuffer.parseObject(payload);
   if(!configuration.success()){
     // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // do nothing??
+    Serial.println("Error reading configuration");
     return;
   }
-
+  Serial.println("Parsed");
   // clear old config
   for(int i = 0; inChannelsList[i] != NULL; i++){
     client.unsubscribe(inChannelsList[i]->c_str());
@@ -243,9 +289,11 @@ void configure(char* payload){
   ///////////////////
 
   JsonArray& sensorsJsonArray = configuration["Sensors"];
+  Serial.println("Sensors");
   int i = 0;
   for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
   {
+    Serial.println("   Add Sensor");
     addChannels(outChannelsList, (*it)["Channels"]);
     sensors[i] = createSensor(*it);
   }
@@ -254,9 +302,11 @@ void configure(char* payload){
 
 
   JsonArray& outDevicesJsonArray = configuration["OutDevices"];
+  Serial.println("OutDevices");
   i = 0;
   for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
   {
+    Serial.println("   Add OutDevice");
     JsonArray& channels = (*it)["Channels"];
     for(auto group: channels){
       addChannels(inChannelsList, group);
@@ -267,21 +317,34 @@ void configure(char* payload){
   outDevices.trim(outDevicesJsonArray.size()+1);
 
   for(int i = 0; inChannelsList[i] != NULL; i++){
+    Serial.print("Subscribe topic: ");
+    Serial.println(inChannelsList[i]->c_str());
     values[i] = 0;
     client.subscribe(inChannelsList[i]->c_str());
   }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println();
+
   if(String(topic) == String(esp_id)){
     char* p = (char*) payload; /// WTF????
     configure(p);
   }
   else {
+    Serial.print("Message arrived ");
+    Serial.println(topic);
     for(int i = 0; inChannelsList[i] != NULL; i++ ){
       if(*inChannelsList[i] == topic){
-        values[i] = ((char)payload[0] == '1');
+        values[i] = (int)((char)payload[0] == '1');
         for(int j = 0; outDevices[j] != NULL; j++){
+          Serial.println(j);
           outDevices[j]->update();
         }
         return;
@@ -320,13 +383,13 @@ void reconnect() {
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("inTopic");
-      Serial.print("1");
-      client.subscribe("inTopic");
-      Serial.print("2");
-      client.subscribe("inTopic");
-      Serial.print("3");
-      client.subscribe("inTopic");
-      Serial.print("4");
+      //Serial.print("1");
+      //client.subscribe("inTopic");
+      //Serial.print("2");
+      //client.subscribe("inTopic");
+      //Serial.print("3");
+      //client.subscribe("inTopic");
+      //Serial.print("4");
       client.subscribe(esp_id);
     } else {
       Serial.print("failed, rc=");

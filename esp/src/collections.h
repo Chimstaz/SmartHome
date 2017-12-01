@@ -1,3 +1,5 @@
+#ifndef COLLECTIONS_H
+#define COLLECTIONS_H
 
 template <typename T> class Array{
 private:
@@ -50,3 +52,5 @@ public:
     delete [] data;
   }
 };
+
+#endif //COLLECTIONS_H

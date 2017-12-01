@@ -9,21 +9,21 @@
 
 class OutDevice{
 public:
-  static void subscribe(JsonArray& channels){
-    for(auto v: channels){
-      // FIXME:
-      client.subscribe(v.as<char*>());
-    }
-  }
-
   void update(){
       Serial.println("Update");
       for(int i = 0; i < channelsGroups; ++i){
         for(int j = 0; ; j++){
           int id = (*channels[i])[j];
-          if(id != -1){
-            if(values[id] == 0){
-              break;
+          if(id != ~0){
+            if(id < 0){
+              if(values[-id] == 1){
+                break;
+              }
+            }
+            else{
+              if(values[id] == 0){
+                break;
+              }
             }
           }
           else{
@@ -49,9 +49,15 @@ protected:
       this->channels[channelsGroups] = new Array<int>();
       int j = 0;
       for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
-        this->channels[channelsGroups]->at(j) = c->as<JsonObject>()["ID"].as<int>();
+        // TODO: add to constants sad strings in parsing json
+        if((*c)["NegationFlag"].as<bool>()){
+          this->channels[channelsGroups]->at(j) = (*c)["ID"].as<int>();
+        }
+        else {
+          this->channels[channelsGroups]->at(j) = -(*c)["ID"].as<int>();
+        }
       }
-      (*(this->channels[channelsGroups]))[j] = -1;
+      (*(this->channels[channelsGroups]))[j] = ~0;
     }
   }
 };

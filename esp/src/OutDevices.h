@@ -13,17 +13,10 @@ public:
       Serial.println("Update");
       for(int i = 0; i < channelsGroups; ++i){
         for(int j = 0; ; j++){
-          int id = (*channels[i])[j];
+          unsigned int id = (*channels[i])[j];
           if(id != ~0){
-            if(id < 0){
-              if(values[-id] == 1){
+            if(values[id>>1] == id&1){
                 break;
-              }
-            }
-            else{
-              if(values[id] == 0){
-                break;
-              }
             }
           }
           else{
@@ -41,20 +34,17 @@ public:
   virtual ~OutDevice(){}
 protected:
   int channelsGroups;
-  Array<Array<int>*> channels;
+  Array<Array<unsigned int>*> channels;
 
   void registerChannels(JsonArray& channels){
     channelsGroups = 0;
     for(auto group = channels.begin(); group != channels.end(); ++group, ++channelsGroups){
-      this->channels[channelsGroups] = new Array<int>();
+      this->channels[channelsGroups] = new Array<unsigned int>();
       int j = 0;
       for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
-        // TODO: add to constants sad strings in parsing json
+        this->channels[channelsGroups]->at(j) = (*c)["ID"].as<int>() << 1;
         if((*c)["NegationFlag"].as<bool>()){
-          this->channels[channelsGroups]->at(j) = (*c)["ID"].as<int>();
-        }
-        else {
-          this->channels[channelsGroups]->at(j) = -(*c)["ID"].as<int>();
+          this->channels[channelsGroups]->at(j) += 1;
         }
       }
       (*(this->channels[channelsGroups]))[j] = ~0;

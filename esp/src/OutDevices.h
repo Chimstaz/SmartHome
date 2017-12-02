@@ -43,7 +43,7 @@ protected:
       int j = 0;
       for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
         this->channels[channelsGroups]->at(j) = (*c)["ID"].as<int>() << 1;
-        if((*c)["NegationFlag"].as<bool>()){
+        if((*c)["NegationFlag"].as<int>()){
           this->channels[channelsGroups]->at(j) += 1;
         }
       }

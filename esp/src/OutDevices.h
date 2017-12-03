@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <PubSubClient.h>
 #include "collections.h"
+#include "constants.h"
 #include "globals.h"
 
 class OutDevice{
@@ -42,8 +43,8 @@ protected:
       this->channels[channelsGroups] = new Array<unsigned int>();
       int j = 0;
       for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
-        this->channels[channelsGroups]->at(j) = (*c)["ID"].as<int>() << 1;
-        if((*c)["NegationFlag"].as<int>()){
+        this->channels[channelsGroups]->at(j) = (*c)[CHANNEL_ID].as<int>() << 1;
+        if((*c)[CHANNEL_NEGATION].as<int>()){
           this->channels[channelsGroups]->at(j) += 1;
         }
       }

@@ -6,37 +6,37 @@
 #include "constants.h"
 
 Sensor* createSensor(JsonObject &conf){
-  String v = conf["Type"].as<String>(); // FIXME:
-  if(v == MVM){
-    return new MovementSensor(conf["Pin"][0], conf["Channels"]);
+  const char* v = conf[SENSOR_TYPE].as<char*>(); // FIXME:
+  if(strcmp(v, MVM) == 0){
+    return new MovementSensor(conf[SENSOR_PINS][0], conf[SENSOR_CHANNELS]);
   }
   //if(v == String(""))
 }
 
 
 OutDevice* createOutDevice(JsonObject &conf){
-    String v = conf["Type"].as<String>();
-    if(v == LED){
-      return new LedOutput(conf["Pin"][0], conf["Channels"]);
+    const char* v = conf[OUTDEVICE_TYPE].as<char*>();
+    if(strcmp(v, LED) == 0){
+      return new LedOutput(conf[OUTDEVICE_PINS][0], conf[OUTDEVICE_CHANNELS_GROUPS]);
     }
-    if(v == SERIALDEVICE){
-      return new SerialPrinter((JsonArray&)conf["Channels"]);
+    if(strcmp(v, SERIALDEVICE) == 0){
+      return new SerialPrinter((JsonArray&)conf[OUTDEVICE_CHANNELS_GROUPS]);
     }
 }
 
 
 void addChannels(Array<String*> &channelsList, JsonArray &channels){
   for(auto c: channels){
-    const char* id = c["ID"].as<char*>();
+    const char* id = c[CHANNEL_ID].as<char*>();
     for(int j = 0; ; j++){
       if(channelsList[j] == NULL){
         channelsList[j] = new String(id);
         channelsList[j+1] = NULL;
-        c["ID"] = j;
+        c[CHANNEL_ID] = j;
         return;
       }
       if(channelsList[j]->equals(id)){
-        c["ID"] = j;
+        c[CHANNEL_ID] = j;
         return;
       }
     }
@@ -80,7 +80,7 @@ void addSensors(JsonArray& sensorsJsonArray){
   for(JsonArray::iterator it = sensorsJsonArray.begin(); it != sensorsJsonArray.end(); ++it, ++i)
   {
     Serial.println("   Add Sensor");
-    addChannels(outChannelsList, (*it)["Channels"]);
+    addChannels(outChannelsList, (*it)[SENSOR_CHANNELS]);
     sensors[i] = createSensor(*it);
   }
   sensors[i] = NULL;
@@ -95,7 +95,7 @@ void addOutDevices(JsonArray& outDevicesJsonArray){
   for(JsonArray::iterator it=outDevicesJsonArray.begin(); it!=outDevicesJsonArray.end(); ++it, ++i)
   {
     Serial.println("   Add OutDevice");
-    JsonArray& channels = (*it)["Channels"];
+    JsonArray& channels = (*it)[OUTDEVICE_CHANNELS_GROUPS];
     for(auto group: channels){
       addChannels(inChannelsList, group);
     }
@@ -120,9 +120,9 @@ void configure(char* payload){
 
   clear_config();
 
-  addSensors(configuration["Sensors"]);
+  addSensors(configuration[SENSORS_CONF]);
 
-  addOutDevices(configuration["OutDevices"]);
+  addOutDevices(configuration[OUTDEVICES_CONF]);
 
   subscribeOnTopics(inChannelsList);
 }

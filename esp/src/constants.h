@@ -14,6 +14,8 @@ const char* OUTDEVICES_CONF = "OutDevices";
 
     const char* CHANNEL_ID = "ID";
     const char* CHANNEL_NEGATION = "NegationFlag";
+    const char* CHANNEL_VALUE_OFF = "ValueOFF";
+    const char* CHANNEL_VALUE_ON = "ValueON";
 
 const char* MVM = "MVM";
 const char* LED = "LED";

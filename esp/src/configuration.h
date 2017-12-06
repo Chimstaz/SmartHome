@@ -10,7 +10,9 @@ Sensor* createSensor(JsonObject &conf){
   if(strcmp(v, MVM) == 0){
     return new MovementSensor(conf[SENSOR_PINS][0], conf[SENSOR_CHANNELS]);
   }
-  //if(v == String(""))
+  if(strcmp(v, SERIALSENSOR) == 0){
+    return new SerialSensor((JsonArray&)conf[SENSOR_CHANNELS]);
+  }
 }
 
 

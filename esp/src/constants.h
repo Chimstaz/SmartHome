@@ -18,6 +18,7 @@ const char* OUTDEVICES_CONF = "OutDevices";
     const char* CHANNEL_VALUE_ON = "ValueON";
 
 const char* MVM = "MVM";
+const char* SERIALSENSOR = "SerialSensor";
 const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
 

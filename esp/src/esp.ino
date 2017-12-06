@@ -52,6 +52,11 @@ void loop() {
   }
   client.loop();
 
+
+  for(int i = 0; sensors[i] != NULL; ++i){
+    sensors[i]->update();
+  }
+
   long now = millis();
   if (now - lastMsg > 2000) {
     lastMsg = now;

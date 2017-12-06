@@ -55,8 +55,8 @@ protected:
   }
 private:
   Array<unsigned int> channels;
-  Array<unsigned int> upBound;
-  Array<unsigned int> downBound;
+  Array<int> upBound;
+  Array<int> downBound;
 };
 
 Array<Sensor*> sensors(2);
@@ -77,7 +77,7 @@ public:
   }
 
   int getValue(){
-    while(Serial.available() > 0){
+    if(Serial.available() > 0){
       value = Serial.parseInt();
     }
     return value;

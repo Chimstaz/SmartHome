@@ -6,6 +6,8 @@
 #include "collections.h"
 #include "globals.h"
 #include "constants.h"
+#include "channelsUtils.h"
+
 
 class Sensor{
 public:
@@ -47,7 +49,7 @@ protected:
   void registerChannels(JsonArray& channels){
     int i = 0;
     for(auto c = channels.begin(); c != channels.end(); ++c, ++i){
-      this->channels[i] = (*c)[CHANNEL_ID].as<int>();
+      this->channels[i] = findChannel((*c)[CHANNEL_ID].as<char*>(), outChannelsList ) ;
       this->upBound[i] = (*c)[CHANNEL_VALUE_ON].as<int>();
       this->downBound[i] = (*c)[CHANNEL_VALUE_OFF].as<int>();
     }
@@ -64,9 +66,13 @@ Array<Sensor*> sensors(2);
 // When getValue is called it try to get something from serial input.
 // If there is nothing then retrun old value
 // If there is something it try to get first inteager and set it as its new value
-class SerialSensor: public Sensor{
+class ButtonSensor: public Sensor{
 public:
-  SerialSensor(JsonArray& channels){
+  ButtonSensor(int pin, JsonArray& channels){
+    Serial.print("Create button sensor on pin ");
+    Serial.println(pin);
+    this->pin = pin;
+    pinMode(pin, INPUT);
     registerChannels(channels);
     value = 0;
     update(false);
@@ -77,15 +83,19 @@ public:
   }
 
   int getValue(){
-    if(Serial.available() > 0){
-      value = Serial.parseInt();
+    if(digitalRead(pin) == HIGH){
+      value = 255;
+    }
+    else{
+      value = 0;
     }
     return value;
   }
 
-  ~SerialSensor(){}
+  ~ButtonSensor(){}
 private:
   int value;
+  int pin;
 };
 
 class MovementSensor: public Sensor{

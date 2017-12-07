@@ -10,8 +10,8 @@ Sensor* createSensor(JsonObject &conf){
   if(strcmp(v, MVM) == 0){
     return new MovementSensor(conf[SENSOR_PINS][0], conf[SENSOR_CHANNELS]);
   }
-  if(strcmp(v, SERIALSENSOR) == 0){
-    return new SerialSensor((JsonArray&)conf[SENSOR_CHANNELS]);
+  if(strcmp(v, BUTTONSENSOR) == 0){
+    return new ButtonSensor(conf[SENSOR_PINS][0], (JsonArray&)conf[SENSOR_CHANNELS]);
   }
 }
 
@@ -34,11 +34,11 @@ void addChannels(Array<String*> &channelsList, JsonArray &channels){
       if(channelsList[j] == NULL){
         channelsList[j] = new String(id);
         channelsList[j+1] = NULL;
-        c[CHANNEL_ID] = j;
+        //c[CHANNEL_ID] = j;
         return;
       }
       if(channelsList[j]->equals(id)){
-        c[CHANNEL_ID] = j;
+        //c[CHANNEL_ID] = j;
         return;
       }
     }
@@ -87,7 +87,6 @@ void addSensors(JsonArray& sensorsJsonArray){
   }
   sensors[i] = NULL;
   sensors.trim(sensorsJsonArray.size()+1);
-
 }
 
 

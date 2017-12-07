@@ -18,15 +18,15 @@ const char* OUTDEVICES_CONF = "OutDevices";
     const char* CHANNEL_VALUE_ON = "ValueON";
 
 const char* MVM = "MVM";
-const char* SERIALSENSOR = "SerialSensor";
+const char* BUTTONSENSOR = "ButtonSensor";
 const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
 
 // Update these with values suitable for your network.
 const char* ssid = "esp";
 const char* password = "haslo8266";
-const char* mqtt_server = "192.168.0.104";
+const char* mqtt_server = "192.168.0.105";
 
-const char* esp_id = "ESP8266";
+const char* esp_id = "ESP82662";
 
 #endif //CONSTANSTS_H

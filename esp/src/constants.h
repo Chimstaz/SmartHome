@@ -21,9 +21,11 @@ const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
 
 // Update these with values suitable for your network.
-const char* ssid = "Maxxnet";
-const char* password = "11111111";
-const char* mqtt_server = "192.168.43.153";
+char ssid[256];//= "Maxxnet";
+char password[256];// = "1111";
+char mqtt_server[256];// = "192.168.43.153";
+// char *ssid = "esp";
+// char *password = "haslo8266";
 
 const char* esp_id = "ESP8266";
 

@@ -23,7 +23,7 @@
 
 */
 
-
+#include <EEPROM.h>
 
 #include "constants.h"
 #include "globals.h"
@@ -31,8 +31,9 @@
 #include "wifi.h"
 #include "mqtt.h"
 
-
 void setup() {
+  EEPROM.begin(512); // ssid + password storage
+
   outDevices[0] = NULL;
   sensors[0] = NULL;
   inChannelsList[0] = NULL;
@@ -45,7 +46,6 @@ void setup() {
 }
 
 void loop() {
-
   if (!client.connected()) {
     reconnect();
   }
@@ -53,6 +53,7 @@ void loop() {
 
   long now = millis();
   if (now - lastMsg > 2000) {
+    // Serial.println(EEPROM.read(a));
     lastMsg = now;
     ++value;
     snprintf (msg, 75, "hello world #%ld", value);

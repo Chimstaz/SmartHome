@@ -43,7 +43,7 @@ void addChannels(Array<String*> &channelsList, JsonArray &channels){
         Serial.print(channelsList[j]->c_str());
         Serial.print(" at ");
         Serial.println(j);
-        return;
+        break;
       }
       if(channelsList[j]->equals(id)){
         //c[CHANNEL_ID] = j;
@@ -51,7 +51,7 @@ void addChannels(Array<String*> &channelsList, JsonArray &channels){
         Serial.print(channelsList[j]->c_str());
         Serial.print(" at ");
         Serial.println(j);
-        return;
+        break;
       }
     }
   }

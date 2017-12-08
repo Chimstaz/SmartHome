@@ -15,9 +15,20 @@ public:
       Serial.println("Update");
       for(int i = 0; i < channelsGroups; ++i){
         for(int j = 0; ; j++){
+          Serial.print(i);
+          Serial.print(" <-group id; channel id->");
+          Serial.println(j);
           unsigned int id = (*channels[i])[j];
+          Serial.print("  negation: ");
+          Serial.print(id&1);
+          Serial.print("  channel id in inChannelsList: ");
+          Serial.println(id >> 1);
           if(id != ~0){
-            if(values[id>>1] == id&1){
+            Serial.print("  value: ");
+            Serial.println(values[id>>1]);
+            Serial.println(values[id>>1] == (id&1));
+            if(values[id>>1] == (id&1)){
+                Serial.println("   BREAK");
                 break;
             }
           }
@@ -97,8 +108,9 @@ private:
 
 class SerialPrinter: public OutDevice{
 public:
-  SerialPrinter(JsonArray& channels){
-    Serial.println("Creating SerialPrinter");
+  SerialPrinter(const char* name, JsonArray& channels){
+    this->name = name;
+    Serial.println("Creating SerialPrinter with name: " + this->name);
     registerChannels(channels);
     value = 0;
     off();
@@ -106,12 +118,12 @@ public:
 
   void on(){
     value = 1;
-    Serial.println("ON");
+    Serial.println("ON " + name);
   }
 
   void off(){
     value = 0;
-    Serial.println("OFF");
+    Serial.println("OFF " + name);
   }
 
   String getValue(){
@@ -124,6 +136,7 @@ public:
     }
   }
 private:
+  String name;
   int value;
 };
 

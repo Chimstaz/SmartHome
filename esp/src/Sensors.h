@@ -28,18 +28,18 @@ protected:
       // if upBound >= downBound then send 1 if value is over upBound. If upBound < downBound then send 1 if value is below upBound
       if(upBound[i] >= downBound[i]){
         if(v > upBound[i] && (previousValue <= upBound[i] || !checkPervious)){
-          client.publish(outChannelsList[i]->c_str(), "1", true); // publish retained message
+          client.publish(outChannelsList[channels[i]]->c_str(), "1", true); // publish retained message
         }
         else if(v < downBound[i] && (previousValue >= downBound[i] || !checkPervious)){
-          client.publish(outChannelsList[i]->c_str(), "0", true); // publish retained message
+          client.publish(outChannelsList[channels[i]]->c_str(), "0", true); // publish retained message
         }
       }
       else {
         if(v < upBound[i] && (previousValue >= upBound[i]  || !checkPervious)){
-          client.publish(outChannelsList[i]->c_str(), "1", true); // publish retained message
+          client.publish(outChannelsList[channels[i]]->c_str(), "1", true); // publish retained message
         }
         else if(v > downBound[i] && (previousValue <= downBound[i] || !checkPervious)){
-          client.publish(outChannelsList[i]->c_str(), "0", true); // publish retained message
+          client.publish(outChannelsList[channels[i]]->c_str(), "0", true); // publish retained message
         }
       }
     }
@@ -50,6 +50,10 @@ protected:
     int i = 0;
     for(auto c = channels.begin(); c != channels.end(); ++c, ++i){
       this->channels[i] = findChannel((*c)[CHANNEL_ID].as<char*>(), outChannelsList ) ;
+      Serial.print("Register out channel: ");
+      Serial.print(outChannelsList[this->channels[i]]->c_str());
+      Serial.print(" id: ");
+      Serial.println(this->channels[i]);
       this->upBound[i] = (*c)[CHANNEL_VALUE_ON].as<int>();
       this->downBound[i] = (*c)[CHANNEL_VALUE_OFF].as<int>();
     }
@@ -70,6 +74,7 @@ class ButtonSensor: public Sensor{
 public:
   ButtonSensor(int pin, JsonArray& channels){
     Serial.print("Create button sensor on pin ");
+
     Serial.println(pin);
     this->pin = pin;
     pinMode(pin, INPUT);
@@ -92,7 +97,11 @@ public:
     return value;
   }
 
-  ~ButtonSensor(){}
+  ~ButtonSensor(){
+    Serial.print("Button sensor on pin ");
+    Serial.print(pin);
+    Serial.println(" is dead.");
+  }
 private:
   int value;
   int pin;

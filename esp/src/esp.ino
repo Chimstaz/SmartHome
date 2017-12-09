@@ -30,10 +30,10 @@
 
 #include "wifi.h"
 #include "mqtt.h"
+#include "EEPROMTools.h"
 
 void setup() {
-  EEPROM.begin(512); // ssid + password storage
-
+  EEPROM.begin(brokerIPSize); //size of broker IP address
   outDevices[0] = NULL;
   sensors[0] = NULL;
   inChannelsList[0] = NULL;
@@ -41,6 +41,11 @@ void setup() {
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
   setup_wifi();
+
+  EEPROM_readCharacters(mqtt_broker_EEPROM_offset, mqtt_server, brokerIPSize);
+  Serial.print("Connecting to mqttServer: ");
+  Serial.println(mqtt_server);
+
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 }
@@ -53,7 +58,6 @@ void loop() {
 
   long now = millis();
   if (now - lastMsg > 2000) {
-    // Serial.println(EEPROM.read(a));
     lastMsg = now;
     ++value;
     snprintf (msg, 75, "hello world #%ld", value);

@@ -4,6 +4,9 @@
 #include <EEPROM.h>
 #include <Arduino.h>  // for type definitions
 
+int mqtt_broker_EEPROM_offset = 0;
+int brokerIPSize = 20;
+
 template <class T> int EEPROM_writeAnything(int ee, const T& value){
     const byte* p = (const byte*)(const void*)&value;
     unsigned int i;
@@ -30,24 +33,28 @@ int EEPROM_writeCharacters(int offset, const char* value, int maxSize){
     return -1;
   }
   EEPROM.write(offset + i, *curr_value); //save ending char
+  EEPROM.commit();
   return ++i;
 }
 
 int EEPROM_readCharacters(int offset, char *buffer, int maxSize){
   unsigned int i = 0;
-  char value;
+  char value = 'a';
   for(; i < maxSize && value != '\0'; i++){
     value = EEPROM.read(offset + i);
+    buffer[i] = value;
   }
   if(i == maxSize and value != '\0'){
     return -1;
   }
+  buffer[i] = '\0';
   return i;
 }
 
 String EEPROM_readString(int offset, int size){
   char* read = new char[size];
-  return String(EEPROM_readCharacters(offset, read, size));
+  EEPROM_readCharacters(offset, read, size);
+  return String(read);
 }
 
 int EEPROM_writeString(int offset, String msg, int size){

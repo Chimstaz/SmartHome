@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "constants.h"
 #include "configuration.h"
+#include "wifi.h"
 
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
@@ -69,8 +70,13 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
+
+      if(Serial.available() > 0){
+        configurationMode();
+        WiFi.begin(ssid, password);
+      }
+      // Wait 2 seconds before retrying
+      delay(2000);
     }
   }
 }

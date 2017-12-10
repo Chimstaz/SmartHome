@@ -11,12 +11,15 @@
 
 class Sensor{
 public:
+  // called regulary in main loop. If value of sensor changed that way it should be updated, the message is send on coresponding channel
   void update(){
     update(true);
   }
 
-
+  // return string that will be return on request channel
   virtual String getValueWithUnits()=0;
+
+  // return current value of sensor
   virtual int getValue()=0;
   virtual ~Sensor(){};
 protected:
@@ -67,9 +70,6 @@ private:
 
 Array<Sensor*> sensors(2);
 
-// When getValue is called it try to get something from serial input.
-// If there is nothing then retrun old value
-// If there is something it try to get first inteager and set it as its new value
 class ButtonSensor: public Sensor{
 public:
   ButtonSensor(int pin, JsonArray& channels){

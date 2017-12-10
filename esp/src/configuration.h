@@ -121,7 +121,7 @@ void addOutDevices(JsonArray& outDevicesJsonArray){
 
 void configure(char* payload){
   Serial.println(payload);
-  StaticJsonBuffer<1024> configurationBuffer;
+  StaticJsonBuffer<MQTT_MAX_PACKET_SIZE> configurationBuffer;
   JsonObject& configuration = configurationBuffer.parseObject(payload);
   if(!configuration.success()){
     // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

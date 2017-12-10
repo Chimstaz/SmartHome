@@ -11,24 +11,14 @@
 
 class OutDevice{
 public:
+  // called when message came on subscribed channel, Check if OutDevice should change state.
   void update(){
       Serial.println("Update");
       for(int i = 0; i < channelsGroups; ++i){
         for(int j = 0; ; j++){
-          Serial.print(i);
-          Serial.print(" <-group id; channel id->");
-          Serial.println(j);
           unsigned int id = (*channels[i])[j];
-          Serial.print("  negation: ");
-          Serial.print(id&1);
-          Serial.print("  channel id in inChannelsList: ");
-          Serial.println(id >> 1);
           if(id != ~0){
-            Serial.print("  value: ");
-            Serial.println(values[id>>1]);
-            Serial.println(values[id>>1] == (id&1));
             if(values[id>>1] == (id&1)){
-                Serial.println("   BREAK");
                 break;
             }
           }
@@ -41,8 +31,13 @@ public:
       off();
   }
 
+  // return string that will be return on request channel
   virtual String getValue()=0;
+
+  // turn on OutDevice
   virtual void on()=0;
+
+  // turn off OutDevice
   virtual void off()=0;
   virtual ~OutDevice(){}
 protected:

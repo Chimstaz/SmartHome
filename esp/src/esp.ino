@@ -39,6 +39,7 @@ void setup() {
   outChannelsList[0] = NULL;
   pinMode(BUILTIN_LED, OUTPUT);     // Initialize the BUILTIN_LED pin as an output
   Serial.begin(115200);
+  Serial.setTimeout(100);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -50,6 +51,11 @@ void loop() {
     reconnect();
   }
   client.loop();
+
+
+  for(int i = 0; sensors[i] != NULL; ++i){
+    sensors[i]->update();
+  }
 
   long now = millis();
   if (now - lastMsg > 2000) {

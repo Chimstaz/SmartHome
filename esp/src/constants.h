@@ -2,6 +2,7 @@
 #define CONSTANSTS_H
 
 #include "globals.h"
+#define BUILTIN_LED 2
 
 const char* SENSORS_CONF = "Sensors";
   const char* SENSOR_TYPE = "Type";
@@ -22,10 +23,9 @@ const char* BUTTONSENSOR = "ButtonSensor";
 const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
 
-// Update these with values suitable for your network.
-const char* ssid = "agatom";
-const char* password = "xxx";
-const char* mqtt_server = "192.168.0.102";
+char ssid[256];
+char password[256];
+char mqtt_server[256];
 
 const char* esp_id = "ESP82662";
 

@@ -23,16 +23,17 @@
 
 */
 
-
+#include <EEPROM.h>
 
 #include "constants.h"
 #include "globals.h"
 
 #include "wifi.h"
 #include "mqtt.h"
-
+#include "EEPROMTools.h"
 
 void setup() {
+  EEPROM.begin(brokerIPSize); //size of broker IP address
   outDevices[0] = NULL;
   sensors[0] = NULL;
   inChannelsList[0] = NULL;
@@ -41,12 +42,16 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(100);
   setup_wifi();
+
+  EEPROM_readCharacters(mqtt_broker_EEPROM_offset, mqtt_server, brokerIPSize);
+  Serial.print("Connecting to mqttServer: ");
+  Serial.println(mqtt_server);
+
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 }
 
 void loop() {
-
   if (!client.connected()) {
     reconnect();
   }

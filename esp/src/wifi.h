@@ -2,20 +2,26 @@
 #define WIFI_H
 
 #include "globals.h"
-#include "constants.h"
+#include "configurationMode.h"
 
 void setup_wifi() {
 
   delay(10);
   // We start by connecting to a WiFi network
   Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println("Connecting to last remembered network:");
+  WiFi.printDiag(Serial);
 
   WiFi.begin(ssid, password);
 
+
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
+    if(Serial.available() > 0){
+      configurationMode();
+      WiFi.begin(ssid, password);
+    }
     Serial.print(".");
   }
 

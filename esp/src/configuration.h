@@ -8,36 +8,50 @@
 Sensor* createSensor(JsonObject &conf){
   const char* v = conf[SENSOR_TYPE].as<char*>(); // FIXME:
   if(strcmp(v, MVM) == 0){
-    return new MovementSensor(conf[SENSOR_PINS][0], conf[SENSOR_CHANNELS]);
+    return new MovementSensor(conf[SENSOR_DATA][0], conf[SENSOR_CHANNELS]);
   }
-  //if(v == String(""))
+  if(strcmp(v, BUTTONSENSOR) == 0){
+    return new ButtonSensor(conf[SENSOR_DATA][0], (JsonArray&)conf[SENSOR_CHANNELS]);
+  }
 }
 
 
 OutDevice* createOutDevice(JsonObject &conf){
     const char* v = conf[OUTDEVICE_TYPE].as<char*>();
     if(strcmp(v, LED) == 0){
-      return new LedOutput(conf[OUTDEVICE_PINS][0], conf[OUTDEVICE_CHANNELS_GROUPS]);
+      return new LedOutput(conf[OUTDEVICE_DATA][0], conf[OUTDEVICE_CHANNELS_GROUPS]);
     }
     if(strcmp(v, SERIALDEVICE) == 0){
-      return new SerialPrinter((JsonArray&)conf[OUTDEVICE_CHANNELS_GROUPS]);
+      return new SerialPrinter(conf[OUTDEVICE_DATA][0], (JsonArray&)conf[OUTDEVICE_CHANNELS_GROUPS]);
     }
 }
 
 
 void addChannels(Array<String*> &channelsList, JsonArray &channels){
+  Serial.println("AddChannels");
+  String con;
+  channels.prettyPrintTo<String>(con);
+  Serial.println(con);
   for(auto c: channels){
-    const char* id = c[CHANNEL_ID].as<char*>();
+    const char* id = c.as<JsonObject>()[CHANNEL_ID].as<char*>();
     for(int j = 0; ; j++){
       if(channelsList[j] == NULL){
         channelsList[j] = new String(id);
         channelsList[j+1] = NULL;
-        c[CHANNEL_ID] = j;
-        return;
+        //c[CHANNEL_ID] = j;
+        Serial.print("Channel ");
+        Serial.print(channelsList[j]->c_str());
+        Serial.print(" at ");
+        Serial.println(j);
+        break;
       }
       if(channelsList[j]->equals(id)){
-        c[CHANNEL_ID] = j;
-        return;
+        //c[CHANNEL_ID] = j;
+        Serial.print("Channel ");
+        Serial.print(channelsList[j]->c_str());
+        Serial.print(" at ");
+        Serial.println(j);
+        break;
       }
     }
   }
@@ -85,7 +99,6 @@ void addSensors(JsonArray& sensorsJsonArray){
   }
   sensors[i] = NULL;
   sensors.trim(sensorsJsonArray.size()+1);
-
 }
 
 
@@ -96,7 +109,7 @@ void addOutDevices(JsonArray& outDevicesJsonArray){
   {
     Serial.println("   Add OutDevice");
     JsonArray& channels = (*it)[OUTDEVICE_CHANNELS_GROUPS];
-    for(auto group: channels){
+    for(JsonArray& group: channels){
       addChannels(inChannelsList, group);
     }
     outDevices[i] = createOutDevice(*it);
@@ -108,7 +121,7 @@ void addOutDevices(JsonArray& outDevicesJsonArray){
 
 void configure(char* payload){
   Serial.println(payload);
-  StaticJsonBuffer<1000> configurationBuffer;
+  StaticJsonBuffer<MQTT_MAX_PACKET_SIZE> configurationBuffer;
   JsonObject& configuration = configurationBuffer.parseObject(payload);
   if(!configuration.success()){
     // TODO: ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -120,9 +133,9 @@ void configure(char* payload){
 
   clear_config();
 
-  addSensors(configuration[SENSORS_CONF]);
-
   addOutDevices(configuration[OUTDEVICES_CONF]);
+
+  addSensors(configuration[SENSORS_CONF]);
 
   subscribeOnTopics(inChannelsList);
 }

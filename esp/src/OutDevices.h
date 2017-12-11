@@ -7,16 +7,18 @@
 #include "collections.h"
 #include "constants.h"
 #include "globals.h"
+#include "channelsUtils.h"
 
 class OutDevice{
 public:
+  // called when message came on subscribed channel, Check if OutDevice should change state.
   void update(){
       Serial.println("Update");
       for(int i = 0; i < channelsGroups; ++i){
         for(int j = 0; ; j++){
           unsigned int id = (*channels[i])[j];
           if(id != ~0){
-            if(values[id>>1] == id&1){
+            if(values[id>>1] == (id&1)){
                 break;
             }
           }
@@ -29,8 +31,13 @@ public:
       off();
   }
 
+  // return string that will be return on request channel
   virtual String getValue()=0;
+
+  // turn on OutDevice
   virtual void on()=0;
+
+  // turn off OutDevice
   virtual void off()=0;
   virtual ~OutDevice(){}
 protected:
@@ -43,7 +50,7 @@ protected:
       this->channels[channelsGroups] = new Array<unsigned int>();
       int j = 0;
       for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
-        this->channels[channelsGroups]->at(j) = (*c)[CHANNEL_ID].as<int>() << 1;
+        this->channels[channelsGroups]->at(j) = findChannel((*c)[CHANNEL_ID].as<char*>(), inChannelsList ) << 1;
         if((*c)[CHANNEL_NEGATION].as<int>()){
           this->channels[channelsGroups]->at(j) += 1;
         }
@@ -96,8 +103,9 @@ private:
 
 class SerialPrinter: public OutDevice{
 public:
-  SerialPrinter(JsonArray& channels){
-    Serial.println("Creating SerialPrinter");
+  SerialPrinter(const char* name, JsonArray& channels){
+    this->name = name;
+    Serial.println("Creating SerialPrinter with name: " + this->name);
     registerChannels(channels);
     value = 0;
     off();
@@ -105,12 +113,12 @@ public:
 
   void on(){
     value = 1;
-    Serial.println("ON");
+    Serial.println("ON " + name);
   }
 
   void off(){
     value = 0;
-    Serial.println("OFF");
+    Serial.println("OFF " + name);
   }
 
   String getValue(){
@@ -123,6 +131,7 @@ public:
     }
   }
 private:
+  String name;
   int value;
 };
 

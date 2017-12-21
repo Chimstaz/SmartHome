@@ -1,0 +1,57 @@
+{
+"OutDevices": [
+    {
+      "Type": "LED",
+      "Channels": [
+        [
+          {
+            "ID": "SB1"
+         },
+         {
+            "ID": "SB2"
+         },
+         {
+            "ID": "MVM"
+         }
+        ]
+      ],
+      "Data": [
+        2
+      ]
+  },
+    {
+      "Type": "Serial",
+      "Channels": [
+        [
+          {
+            "ID": "SB1"
+         },
+	        {
+            "ID": "SB2"
+         },
+         {
+            "ID": "MVM"
+         }
+        ]
+      ],
+      "Data": [
+        "AND"
+      ]
+  }
+],
+"Sensors": [
+  {
+    "Type": "ButtonSensor",
+    "Channels": [
+        {
+          "ID": "SB2",
+          "ValueOFF": 125,
+          "ValueON": 126
+        }
+    ],
+    "Data": [
+      5
+    ]
+  }
+]
+}

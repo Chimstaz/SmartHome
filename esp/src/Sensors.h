@@ -110,18 +110,34 @@ private:
 class MovementSensor: public Sensor{
 public:
   MovementSensor(int Pin, JsonArray& channels){
-
+      Serial.print("Create Movement sensor on pin ");
+      Serial.println(pin);
+      this->pin = Pin;
+      pinMode(pin, INPUT);
+      registerChannels(channels);
+      value = 0;
+      update(false);
   }
 
   int getValue(){
-
+    if(digitalRead(pin) == HIGH){
+      value = 255;
+    }
+    else{
+      value = 0;
+    }
+    return value;
   }
 
   String getValueWithUnits(){
-
+    return String(value);
   }
 
   ~MovementSensor(){}
+
+private:
+  int value;
+  int pin;
 };
 
 

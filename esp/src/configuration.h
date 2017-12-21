@@ -13,6 +13,9 @@ Sensor* createSensor(JsonObject &conf){
   if(strcmp(v, BUTTONSENSOR) == 0){
     return new ButtonSensor(conf[SENSOR_DATA][0], (JsonArray&)conf[SENSOR_CHANNELS]);
   }
+  if(strcmp(v, PHOTOSENSOR) == 0){
+    return new PhotoSensor((JsonArray&)conf[SENSOR_CHANNELS]);
+  }
 }
 
 

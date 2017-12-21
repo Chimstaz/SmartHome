@@ -107,6 +107,31 @@ private:
   int pin;
 };
 
+
+class PhotoSensor: public Sensor{
+public:
+  PhotoSensor(JsonArray& channels){
+    Serial.print("Create PhotoSensor sensor on pin A0");
+    registerChannels(channels);
+    value = 0;
+    update(false);
+  }
+
+  int getValue(){
+    value = analogRead(A0);
+    return value;
+  }
+
+  String getValueWithUnits(){
+    String(value);
+  }
+
+  ~PhotoSensor(){}
+private:
+  int value;
+};
+
+
 class MovementSensor: public Sensor{
 public:
   MovementSensor(int Pin, JsonArray& channels){

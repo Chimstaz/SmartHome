@@ -22,6 +22,7 @@ const char* MVM = "MVM";
 const char* BUTTONSENSOR = "ButtonSensor";
 const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
+const char* PHOTOSENSOR = "PhotoSensor";
 
 char ssid[256];
 char password[256];

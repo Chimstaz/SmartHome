@@ -13,7 +13,7 @@ void printConfiguration(){
   Serial.print(" current mqtt_broker: ");
   Serial.print(mqtt_server);
   Serial.print(" current esp ID: ");
-  Serial.print(espID);
+  Serial.println(espID);
 }
 
 void configurationMode(){

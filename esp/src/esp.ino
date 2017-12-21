@@ -33,6 +33,7 @@
 #include "EEPROMTools.h"
 
 void setup() {
+  initializeEEPROM();
   outDevices[0] = NULL;
   sensors[0] = NULL;
   inChannelsList[0] = NULL;

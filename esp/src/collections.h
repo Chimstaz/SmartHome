@@ -1,6 +1,8 @@
 #ifndef COLLECTIONS_H
 #define COLLECTIONS_H
 
+#include <Arduino.h>
+
 template <typename T> class Array{
 private:
   int _size;
@@ -42,6 +44,10 @@ public:
     delete [] data;
     data = newData;
     _size = n;
+  }
+
+  void sort(int(*compar)(const void*, const void*), int size){
+    qsort(this->data, size, sizeof(T), compar);
   }
 
   int size(){

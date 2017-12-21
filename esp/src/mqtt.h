@@ -15,7 +15,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 
-  if(String(topic) == String(esp_id)){
+  if(String(topic) == String(espID)){
     char* p = (char*) payload; /// WTF????
     configure(p);
   }
@@ -65,7 +65,7 @@ void reconnect() {
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("inTopic");
-      client.subscribe(esp_id);
+      client.subscribe(espID);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());

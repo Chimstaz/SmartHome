@@ -3,9 +3,12 @@
 
 #include <EEPROM.h>
 #include <Arduino.h>  // for type definitions
+#include "constants.h"
 
 int mqtt_broker_EEPROM_offset = 0;
-int brokerIPSize = 20;
+int brokerIPSize = 128;
+int espIdOffset = 128;
+int espIdSize = 32;
 
 template <class T> int EEPROM_writeAnything(int ee, const T& value){
     const byte* p = (const byte*)(const void*)&value;
@@ -59,6 +62,16 @@ String EEPROM_readString(int offset, int size){
 
 int EEPROM_writeString(int offset, String msg, int size){
   return EEPROM_writeCharacters(offset, msg.c_str(), size);
+}
+
+void readConfigFromEEPROM(){
+  EEPROM_readCharacters(mqtt_broker_EEPROM_offset, mqtt_server, brokerIPSize); //read broker IP
+  EEPROM_readCharacters(espIdOffset, espID, espIdSize); // read espID
+}
+
+void initializeEEPROM(){
+  EEPROM.begin(brokerIPSize + espIdSize); //size of broker IP address
+  readConfigFromEEPROM();
 }
 
 #endif

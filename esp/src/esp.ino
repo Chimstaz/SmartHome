@@ -33,7 +33,6 @@
 #include "EEPROMTools.h"
 
 void setup() {
-  EEPROM.begin(brokerIPSize); //size of broker IP address
   outDevices[0] = NULL;
   sensors[0] = NULL;
   inChannelsList[0] = NULL;
@@ -43,7 +42,6 @@ void setup() {
   Serial.setTimeout(100);
   setup_wifi();
 
-  EEPROM_readCharacters(mqtt_broker_EEPROM_offset, mqtt_server, brokerIPSize);
   Serial.print("Connecting to mqttServer: ");
   Serial.println(mqtt_server);
 

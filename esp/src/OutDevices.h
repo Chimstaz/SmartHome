@@ -45,6 +45,9 @@ public:
             on();
             return;
           }
+          else{
+            break;
+          }
         }
       }
       off();

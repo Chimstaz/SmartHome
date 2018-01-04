@@ -8,10 +8,12 @@ void printConfiguration(){
   Serial.println("\nEntering configuration mode. Type enter to exit");
   Serial.print("Current ssid: ");
   Serial.print(ssid);
-  Serial.print("current password: ");
+  Serial.print(" current password: ");
   Serial.print(password);
-  Serial.print("current mqtt_broker: ");
-  Serial.println(mqtt_server);
+  Serial.print(" current mqtt_broker: ");
+  Serial.print(mqtt_server);
+  Serial.print(" current esp ID: ");
+  Serial.println(espID);
 }
 
 void configurationMode(){
@@ -41,6 +43,12 @@ void configurationMode(){
     Serial.print("Updated mqtt_server IP: ");
     Serial.println(mqtt_server);
 
+  } else if(configure.startsWith("espID:")){
+    configure = configure.substring(6,configure.length() - 1);
+    strcpy(espID, configure.c_str());
+    EEPROM_writeCharacters(espIdOffset, espID, espIdSize);
+    Serial.print("Updated esp ID: ");
+    Serial.println(espID);
   } else {
     Serial.print("Unknown field update: ");
     Serial.println(configure);

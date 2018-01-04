@@ -15,7 +15,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 
-  if(String(topic) == String(esp_id)){
+  if(String(topic) == String(espID)){
     char* p = (char*) payload; /// WTF????
     configure(p);
   }
@@ -58,18 +58,23 @@ void reconnect() {
     // Create a random client ID
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
+
     // Attempt to connect
-    if (client.connect(clientId.c_str())) {
+    if (espID[0] != '\0' && client.connect(clientId.c_str())) {
       Serial.println("connected");
       // Once connected, publish an announcement...
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("inTopic");
-      client.subscribe(esp_id);
+      client.subscribe(espID);
     } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
+      if(espID[0] == '\0'){
+        Serial.println("You need to configure ESPID");
+      } else {
+        Serial.print("failed, rc=");
+        Serial.print(client.state());
+        Serial.println(" try again in 5 seconds");
+      }
 
       if(Serial.available() > 0){
         configurationMode();

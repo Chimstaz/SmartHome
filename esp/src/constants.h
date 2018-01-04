@@ -26,10 +26,9 @@ const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
 const char* PHOTOSENSOR = "PhotoSensor";
 
-char ssid[256];
-char password[256];
-char mqtt_server[256];
-
-const char* esp_id = "ESP82662";
+char ssid[32];
+char password[32];
+char mqtt_server[128];
+char espID[32];
 
 #endif //CONSTANSTS_H

@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+#include "qsort.h"
+
+
 template <typename T> class Array{
 private:
   int _size;

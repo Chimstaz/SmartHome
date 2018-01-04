@@ -3,7 +3,15 @@
 
 #include <Arduino.h>
 
-#include "qsort.h"
+void swap(void *a, void *b, size_t size){
+  char *ac = (char*)a;
+  char *bc = (char*)b;
+  do{
+    char tmp = *ac;
+    *ac++ = *bc;
+    *bc++ = tmp;
+  } while (--size > 0);
+}
 
 
 template <typename T> class Array{
@@ -49,8 +57,17 @@ public:
     _size = n;
   }
 
-  void sort(int(*compar)(const void*, const void*), int size){
-    qsort(this->data, size, sizeof(T), compar);
+  void sort(int(*compar)(const T*, const T*), int size){
+    bool change;
+    do{
+      change = false;
+      for(int i = 1; i < size; i++){
+        if(compar(&(this->data[i-1]), &(this->data[i])) > 0){
+          swap(&(this->data[i-1]), &(this->data[i]), sizeof(T));
+          change = true;
+        }
+      }
+    } while(change);
   }
 
   int size(){

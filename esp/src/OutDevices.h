@@ -10,8 +10,8 @@
 #include "channelsUtils.h"
 
 
-int compareChannelsGroupsByPriority(const void *a, const void *b){
-  return ((Array<unsigned int> *)a)->at(0) - ((Array<unsigned int>*)b)->at(0);
+int compareChannelsGroupsByPriority(Array<unsigned int>* const *a, Array<unsigned int>* const *b){
+  return (*a)->at(0) - (*b)->at(0);
 }
 
 

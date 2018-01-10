@@ -37,7 +37,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
           default:
             values[i] = 2;
         }
-        //values[i] = (int)((char)payload[0] == '0');
         for(int j = 0; outDevices[j] != NULL; j++){
           Serial.println(j);
           outDevices[j]->update();

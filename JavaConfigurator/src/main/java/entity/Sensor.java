@@ -1,13 +1,21 @@
 package entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Sensor {
     private String Type;
-    private List<List<Channel>> Channels;
+    private List<Channel> Channels;
     private List<Object> Data;
 
-    public Sensor(String type, List<List<Channel>> channels, List<Object> data) {
+
+    public Sensor(String type) {
+        Channels = new ArrayList<>();
+        Data = new ArrayList<>();
+        this.Type = type;
+    }
+
+    public Sensor(String type, List<Channel> channels, List<Object> data) {
         Type = type;
         Channels = channels;
         Data = data;
@@ -21,11 +29,11 @@ public class Sensor {
         Type = type;
     }
 
-    public List<List<Channel>> getChannels() {
+    public List<Channel> getChannels() {
         return Channels;
     }
 
-    public void setChannels(List<List<Channel>> channels) {
+    public void setChannels(List<Channel> channels) {
         Channels = channels;
     }
 

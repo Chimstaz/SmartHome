@@ -36,6 +36,9 @@ protected:
         }
       }
     }
+    if(previousValue == ~0){
+      checkPervious = false;
+    }
     for(int i = 0; channels[i] != ~0; i++){
       // if upBound >= downBound then send 1 if value is over upBound. If upBound < downBound then send 1 if value is below upBound
       if(upBound[i] >= downBound[i]){

@@ -3,6 +3,8 @@
 
 #include <ArduinoJson.h>
 #include <PubSubClient.h>
+#include <time.h>
+
 #include "collections.h"
 #include "globals.h"
 #include "constants.h"
@@ -164,6 +166,40 @@ private:
   int value;
   int pin;
 };
+
+class TimeSensor: public Sensor{
+public:
+  TimeSensor(int cycle, JsonArray& channels){
+      Serial.print("Create Time sensor");
+      registerChannels(channels);
+      value = 0;
+      update(false);
+  }
+
+  int getValue(){
+    time_t know;
+    struct tm * timeinfo;
+    time(&know);
+    timeinfo = localtime(&know);
+
+    int secondsPerDay = 86400;
+    int secondsFromMonday = ((timeinfo -> tm_wday - 1) * secondsPerDay) + (3600 * timeinfo->tm_hour) + timeinfo -> tm_sec; // seconds since monday 00:00
+    value = secondsFromMonday % cycle;
+
+    return value;
+  }
+
+  String getValueWithUnits(){
+    return String(value);
+  }
+
+  ~TimeSensor(){}
+
+private:
+  int value;
+  int cycle;
+};
+
 
 
 #endif //SENSORS_H

@@ -15,6 +15,8 @@ Sensor* createSensor(JsonObject &conf){
   }
   if(strcmp(v, PHOTOSENSOR) == 0){
     return new PhotoSensor((JsonArray&)conf[SENSOR_CHANNELS]);
+  } if(strcmp(v, TIMESENSOR) == 0){
+    return new TimeSensor(conf[SENSOR_DATA][0], (JsonArray&)conf[SENSOR_CHANNELS]);
   }
 }
 

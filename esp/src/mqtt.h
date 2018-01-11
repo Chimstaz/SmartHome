@@ -24,7 +24,19 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(topic);
     for(int i = 0; inChannelsList[i] != NULL; i++ ){
       if(*inChannelsList[i] == topic){
-        values[i] = (int)((char)payload[0] == '1');
+        switch ((char)payload[0]) {
+          case '0':
+            values[i] = 0;
+            break;
+          case '1':
+            values[i] = 1;
+            break;
+          case '2':
+            values[i] = 2;
+            break;
+          default:
+            values[i] = 2;
+        }
         for(int j = 0; outDevices[j] != NULL; j++){
           Serial.println(j);
           outDevices[j]->update();

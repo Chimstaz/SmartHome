@@ -9,22 +9,44 @@
 #include "globals.h"
 #include "channelsUtils.h"
 
+
+int compareChannelsGroupsByPriority(Array<unsigned int>* const *a, Array<unsigned int>* const *b){
+  return (*a)->at(0) - (*b)->at(0);
+}
+
+
 class OutDevice{
 public:
   // called when message came on subscribed channel, Check if OutDevice should change state.
   void update(){
       Serial.println("Update");
+      bool wasFalseBefore = false;
+      unsigned int currentPriority = 0;
       for(int i = 0; i < channelsGroups; ++i){
-        for(int j = 0; ; j++){
+        if(currentPriority < (*channels[i])[0] && wasFalseBefore){
+          off();
+          return;
+        }
+        currentPriority = (*channels[i])[0];
+        bool isUndefined = false;
+        for(int j = 1; ; j++){
           unsigned int id = (*channels[i])[j];
           if(id != ~0){
-            if(values[id>>1] == (id&1)){
-                break;
+            if(values[id>>1] == 2){
+              isUndefined = true;
+              continue;
+            }
+            else if(values[id>>1] == (id&1)){
+              wasFalseBefore = true;
+              break;
             }
           }
-          else{
+          else if(!isUndefined){
             on();
             return;
+          }
+          else{
+            break;
           }
         }
       }
@@ -48,8 +70,9 @@ protected:
     channelsGroups = 0;
     for(auto group = channels.begin(); group != channels.end(); ++group, ++channelsGroups){
       this->channels[channelsGroups] = new Array<unsigned int>();
-      int j = 0;
-      for(auto c = group->as<JsonArray>().begin(); c != group->as<JsonArray>().end(); ++c, ++j){
+      this->channels[channelsGroups]->at(0) = group->as<JsonObject>()[PRIORITY_OF_GROUP];
+      int j = 1;
+      for(auto c = group->as<JsonObject>()[CHANNELS_IN_GROUP].as<JsonArray>().begin(); c != group->as<JsonObject>()[CHANNELS_IN_GROUP].as<JsonArray>().end(); ++c, ++j){
         this->channels[channelsGroups]->at(j) = findChannel((*c)[CHANNEL_ID].as<char*>(), inChannelsList ) << 1;
         if((*c)[CHANNEL_NEGATION].as<int>()){
           this->channels[channelsGroups]->at(j) += 1;
@@ -57,6 +80,8 @@ protected:
       }
       (*(this->channels[channelsGroups]))[j] = ~0;
     }
+    // sort channels by priority
+    this->channels.sort(*compareChannelsGroupsByPriority, channelsGroups);
   }
 };
 

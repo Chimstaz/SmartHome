@@ -112,8 +112,8 @@ void addOutDevices(JsonArray& outDevicesJsonArray){
   {
     Serial.println("   Add OutDevice");
     JsonArray& channels = (*it)[OUTDEVICE_CHANNELS_GROUPS];
-    for(JsonArray& group: channels){
-      addChannels(inChannelsList, group);
+    for(JsonObject& group: channels){
+      addChannels(inChannelsList, group[CHANNELS_IN_GROUP].as<JsonArray>());
     }
     outDevices[i] = createOutDevice(*it);
   }

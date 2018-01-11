@@ -25,8 +25,11 @@ where NameOfTheNetwork is the name of the network ESP is to connect to.
 To set up the password type:  
 ```pass:PasswordToNetwork```  
 
-And to set up the broker IP:  
-```brokerIP:B rokerIP```  
+To set up the broker IP:  
+```brokerIP:BrokerIP```  
+
+And to set the esp ID:
+```espID:ESPID```
 
 Now the ESP should connect to the network and to the broker. Note, that you will need to set this only once (The ESP will remember all of the provided configurations).
 
@@ -35,10 +38,8 @@ To set up the devices and sensors on the ESP you need to send a configuration vi
 
 Array of:
 **SensorConf:**
-- TYPE {MVM, DIST, TEMP, CLK}        - Type of device that this object describes
+- TYPE {MVM, DIST, TEMP, CLK, BTN}   - Type of device that this object describes
 - DATA []                            - where the sensor is plugged in (and other sensor-specific information)
-- RequestChannelID                 - on this channel you can ask for current value of sensor
-- ValueChannelID                   - on this channel the device will respond with the value
 - Channels: []                       - list of channels that this device publishes its state (Binary)
   - ID                                  - id of the channel 
   - ValueON                             - value of the sensor that triggers the 'ON' state 
@@ -47,13 +48,10 @@ Array of:
 **OutConf:**
 - TYPE: {LED}                        
 - DATA []
-- RequestChannelID
-- ValueChannelID
 - Channels: []                       - list of channels that trigger the Device (logical 'or')
   - ChannelIDs: []                   - list of channels (logical 'and')
     - ID                                - id of the channel
     - negationFlag                      - if the value on the channel should be interpreted as negated
-    - minimalChangeInterval             - minimal time needed for the state change
 
 For the explanation of list of channelIDs see **Example** section.
 
@@ -110,7 +108,6 @@ The Out Device's state will correspond with the logical statement:
 ### Default Values
 If some of those fields are not provided the default value will be taken:
 - NegationFlag = false
-- MinimalChangeInterval = 0
 
 
 ## Contributing

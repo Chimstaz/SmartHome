@@ -25,7 +25,9 @@ const char* BUTTONSENSOR = "ButtonSensor";
 const char* LED = "LED";
 const char* SERIALDEVICE = "Serial";
 const char* PHOTOSENSOR = "PhotoSensor";
+const char* BUTTONWITHDISABLESWITCH = "DisableSwitch";
 const char* TIMESENSOR = "TIME";
+
 
 char ssid[32];
 char password[32];

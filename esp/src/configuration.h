@@ -18,6 +18,9 @@ Sensor* createSensor(JsonObject &conf){
   } if(strcmp(v, TIMESENSOR) == 0){
     return new TimeSensor(conf[SENSOR_DATA][0], (JsonArray&)conf[SENSOR_CHANNELS]);
   }
+  if(strcmp(v, BUTTONWITHDISABLESWITCH) == 0){
+    return new ButtonWithDisableSwitch(conf[SENSOR_DATA][0], conf[SENSOR_DATA][1], (JsonArray&)conf[SENSOR_CHANNELS]);
+  }
 }
 
 

@@ -29,6 +29,18 @@ protected:
 
   void update(bool checkPervious){
     int v = this->getValue();
+    // if Sensor value is ~0 that means sensor is in undefined state
+    if(v == ~0){
+      if(!checkPervious || previousValue != ~0){
+        // publish undefined on all channels
+        for(int i = 0; channels[i] != ~0; i++){
+          client.publish(outChannelsList[channels[i]]->c_str(), "2", true);
+        }
+      }
+    }
+    if(previousValue == ~0){
+      checkPervious = false;
+    }
     for(int i = 0; channels[i] != ~0; i++){
       // if upBound >= downBound then send 1 if value is over upBound. If upBound < downBound then send 1 if value is below upBound
       if(upBound[i] >= downBound[i]){
@@ -204,6 +216,53 @@ private:
   int cycle;
 };
 
+
+
+class ButtonWithDisableSwitch: public Sensor{
+public:
+  ButtonWithDisableSwitch(int buttonPin, int disableSwitchPin, JsonArray& channels){
+    Serial.print("Create button sensor on pin ");
+    Serial.print(buttonPin);
+    Serial.print(" with disable switch on pin ");
+    Serial.print(disableSwitchPin);
+    this->buttonPin = buttonPin;
+    this->disablePin = disableSwitchPin;
+    pinMode(this->buttonPin, INPUT);
+    pinMode(this->disablePin, INPUT);
+    registerChannels(channels);
+    value = 0;
+    update(false);
+  }
+
+  String getValueWithUnits(){
+    return String(value);
+  }
+
+  int getValue(){
+    if(digitalRead(buttonPin) == HIGH){
+      if(digitalRead(buttonPin) == HIGH){
+        value = 255;
+      }
+      else{
+        value = 0;
+      }
+    }
+    else {
+      value = ~0;
+    }
+    return value;
+  }
+
+  ~ButtonWithDisableSwitch(){
+    Serial.print("Button sensor on pin ");
+    Serial.print(buttonPin);
+    Serial.println(" with disable switch is dead.");
+  }
+private:
+  int value;
+  int buttonPin;
+  int disablePin;
+};
 
 
 #endif //SENSORS_H

@@ -48,11 +48,6 @@ void setup() {
   setup_wifi();
 
   configTime(1 * 3600, 0, "pool.ntp.org", "time.nist.gov"); //time zone is GMT + 1
-  Serial.println("\nWaiting for time");
-  while (!time(nullptr)) {
-    Serial.print(".");
-    delay(1000);
-  }
 
   Serial.print("Connecting to mqttServer: ");
   Serial.println(mqtt_server);

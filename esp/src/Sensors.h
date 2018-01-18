@@ -171,12 +171,16 @@ class TimeSensor: public Sensor{
 public:
   TimeSensor(int cycle, JsonArray& channels){
       Serial.print("Create Time sensor");
+      this->cycle = cycle;
       registerChannels(channels);
       value = 0;
       update(false);
   }
 
   int getValue(){
+    if(!time(nullptr)){
+      return ~0;
+    }
     time_t know;
     struct tm * timeinfo;
     time(&know);

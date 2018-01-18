@@ -25,12 +25,16 @@
 
 #include <EEPROM.h>
 
+#include <time.h>
+
 #include "constants.h"
 #include "globals.h"
 
 #include "wifi.h"
 #include "mqtt.h"
 #include "EEPROMTools.h"
+
+// #include "time_config.h"
 
 void setup() {
   initializeEEPROM();
@@ -42,6 +46,8 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(100);
   setup_wifi();
+
+  configTime(1 * 3600, 0, "pool.ntp.org", "time.nist.gov"); //time zone is GMT + 1
 
   Serial.print("Connecting to mqttServer: ");
   Serial.println(mqtt_server);

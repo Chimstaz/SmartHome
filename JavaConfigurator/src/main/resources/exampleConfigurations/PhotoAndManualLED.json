@@ -1,0 +1,29 @@
+{
+    "OutDevices": [
+        {
+            "Type": "LED",
+            "Channels": [
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "LightSensor"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 1,
+                    "Channels": [
+                        {
+                            "ID": "ManualSwitch"
+                        }
+                    ]
+                }
+            ],
+            "Data": [
+                16
+            ]
+        }
+    ],
+    "Sensors": []
+}

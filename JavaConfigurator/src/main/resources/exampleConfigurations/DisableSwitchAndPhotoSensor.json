@@ -1,0 +1,29 @@
+{
+    "OutDevices": [],
+    "Sensors": [
+        {
+            "Type": "PHOTO",
+            "Channels": [
+                {
+                    "ID": "LightSensor",
+                    "ValueON": 350,
+                    "ValueOFF": 700
+                }
+            ]
+        },
+        {
+            "Type": "DISABLESWITCH",
+            "Channels": [
+                {
+                    "ID": "ManualSwitch",
+                    "ValueON": 126,
+                    "ValueOFF": 125
+                }
+            ],
+            "Data": [
+                13,
+                12
+            ]
+        }
+    ]
+}

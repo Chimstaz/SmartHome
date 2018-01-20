@@ -1,5 +1,5 @@
 package entity;
 
 public enum DeviceType {
-    LED, Serial, ButtonSensor
+    LED, SERIAL, BTN, DISABLESWITCH, TIME, MVM, PHOTO
 }

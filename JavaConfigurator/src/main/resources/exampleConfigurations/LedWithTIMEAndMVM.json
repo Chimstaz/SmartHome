@@ -1,0 +1,72 @@
+{
+    "OutDevices": [
+        {
+            "Type": "LED",
+            "Channels": [
+                {
+                    "Priority": 1,
+                    "Channels": [
+                        {
+                            "ID": "LEDManager"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "Morning"
+                        },
+                        {
+                            "ID": "MVM"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "Evening"
+                        }
+                    ]
+                }
+            ],
+            "Data": [
+                16
+            ]
+        }
+    ],
+    "Sensors": [
+        {
+            "Type": "TIME",
+            "Channels": [
+                {
+                    "ID": "Morning",
+                    "ValueON": 21600,
+                    "ValueOFF": 25200
+                },
+                {
+                    "ID": "Evening",
+                    "ValueON": 68400,
+                    "ValueOFF": 82800
+                }
+            ],
+            "Data": [
+                86400
+            ]
+        },
+        {
+            "Type": "MVM",
+            "Channels": [
+                {
+                    "ID": "MVM",
+                    "ValueOFF": 125,
+                    "ValueON": 126
+                }
+            ],
+            "Data": [
+                2
+            ]
+        }
+    ]
+}

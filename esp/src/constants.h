@@ -21,11 +21,11 @@ const char* OUTDEVICES_CONF = "OutDevices";
       const char* CHANNEL_VALUE_ON = "ValueON";
 
 const char* MVM = "MVM";
-const char* BUTTONSENSOR = "ButtonSensor";
+const char* BUTTONSENSOR = "BTN";
 const char* LED = "LED";
-const char* SERIALDEVICE = "Serial";
-const char* PHOTOSENSOR = "PhotoSensor";
-const char* BUTTONWITHDISABLESWITCH = "DisableSwitch";
+const char* SERIALDEVICE = "SERIAL";
+const char* PHOTOSENSOR = "PHOTO";
+const char* BUTTONWITHDISABLESWITCH = "DISABLESWITCH";
 const char* TIMESENSOR = "TIME";
 
 

@@ -71,6 +71,7 @@ protected:
       Serial.print(outChannelsList[this->channels[i]]->c_str());
       Serial.print(" id: ");
       Serial.println(this->channels[i]);
+      // TODO: default upBoound and downBound for digitalRead
       this->upBound[i] = (*c)[CHANNEL_VALUE_ON].as<int>();
       this->downBound[i] = (*c)[CHANNEL_VALUE_OFF].as<int>();
     }

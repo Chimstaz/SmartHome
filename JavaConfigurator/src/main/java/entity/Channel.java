@@ -2,13 +2,13 @@ package entity;
 
 public class Channel {
     private String ID;
-    private Boolean negationFlag;
+    private Boolean NegationFlag;
     private Integer ValueON;
     private Integer ValueOFF;
 
     public Channel(String ID, Boolean negationFlag) {
         this.ID = ID;
-        this.negationFlag = negationFlag;
+        this.NegationFlag = negationFlag;
     }
 
     public Channel(String ID) {
@@ -22,11 +22,11 @@ public class Channel {
     }
 
     public Boolean getNegationFlag() {
-        return negationFlag;
+        return NegationFlag;
     }
 
     public void setNegationFlag(Boolean negationFlag) {
-        this.negationFlag = negationFlag;
+        this.NegationFlag = negationFlag;
     }
 
     public Integer getValueON() {

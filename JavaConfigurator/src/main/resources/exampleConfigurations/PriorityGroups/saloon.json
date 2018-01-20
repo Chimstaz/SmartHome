@@ -1,0 +1,53 @@
+{
+    "OutDevices": [
+        {
+            "Type": "LED",
+            "Channels": [
+                {
+                    "Priority": 1,
+                    "Channels": [
+                        {
+                            "ID": "SalonLED1"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "Salon"
+                        }
+                    ]
+                }
+            ],
+            "Data": [
+                13
+            ]
+        },
+        {
+            "Type": "LED",
+            "Channels": [
+                {
+                    "Priority": 1,
+                    "Channels": [
+                        {
+                            "ID": "SalonLED1"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "Salon"
+                        }
+                    ]
+                }
+            ],
+            "Data": [
+                14
+            ]
+        }
+    ],
+    "Sensors": []
+}

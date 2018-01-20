@@ -12,7 +12,7 @@ public class Configuration {
         Sensors = new ArrayList<>();
     }
 
-    public Configuration(ArrayList<OutDevice> outDevices, ArrayList<Sensor> sensors) {
+    public Configuration(List<OutDevice> outDevices, List<Sensor> sensors) {
         OutDevices = outDevices;
         Sensors = sensors;
     }

@@ -1,0 +1,53 @@
+{
+    "OutDevices": [
+        {
+            "Type": "LED",
+            "Channels": [
+                {
+                    "Priority": 1,
+                    "Channels": [
+                        {
+                            "ID": "SypialniaLED1"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "Sypialnia"
+                        }
+                    ]
+                }
+            ],
+            "Data": [
+                13
+            ]
+        },
+        {
+            "Type": "LED",
+            "Channels": [
+                {
+                    "Priority": 1,
+                    "Channels": [
+                        {
+                            "ID": "SypialniaLED1"
+                        }
+                    ]
+                },
+                {
+                    "Priority": 2,
+                    "Channels": [
+                        {
+                            "ID": "Sypialnia"
+                        }
+                    ]
+                }
+            ],
+            "Data": [
+                14
+            ]
+        }
+    ],
+    "Sensors": []
+}

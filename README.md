@@ -4,9 +4,15 @@ SmartHome is a project for creating and customising Intelligent Home, based on M
 ## Purpose
 The idea of the project is to create a simple, configurable IoT network. User is provided with tool that allows to remotly configure the behaviour of the controlled devices. User can choose what type of device or sensor is connected to the ESP module. Each device can be controlled by set of sensors.
 
-#### Currently supported devices and sensors:
+#### Currently supported devices
 - OutDevice that is controlled by binary signal (ON and OFF - Example: Led Strip).
+- Serial - device created for debugging purposes
+#### Currently supported sensors:
 - Button Sensor - sensor value depending on the external button
+- Photo Sensor
+- Movement Sensor - supported movement sensor: HC-SR501
+- Time Sensor - configurable cyclic timer (cycle defined as number of seconds)
+- Disable switch Sensor - a switch, that can be disabled by another switch (more about disabling in section Example)
 
 ## Getting Started
 These instructions will get you a copy of the project up and running in your local environment for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -15,6 +21,7 @@ These instructions will get you a copy of the project up and running in your loc
 ESP8266 platform (ex. with NodeMCU)
 Project is being developed with PlatofrmIO for Atom
 MQTT Broker (may be local - ex. mosquitto or remote one)
+WiFi network connected to the Internet
 
 ### Configuration
 After uploading the project to the ESP. It is required to set up connection to the wifi network and the broker address. In the Serial input type:  
@@ -38,7 +45,7 @@ To set up the devices and sensors on the ESP you need to send a configuration vi
 
 Array of:
 **SensorConf:**
-- TYPE {MVM, DIST, TEMP, CLK, BTN}   - Type of device that this object describes
+- TYPE {MVM, TIME, LED, PHOTO, DISABLESWITCH}   - Type of device that this object describes
 - DATA []                            - where the sensor is plugged in (and other sensor-specific information)
 - Channels: []                       - list of channels that this device publishes its state (Binary)
   - ID                                  - id of the channel 
@@ -46,12 +53,13 @@ Array of:
   - ValueOFF                            - value of the sensor that triggers the 'OFF' state
 
 **OutConf:**
-- TYPE: {LED}                        
+- TYPE: {LED, SERIAL}                        
 - DATA []
 - Channels: []                       - list of channels that trigger the Device (logical 'or')
-  - ChannelIDs: []                   - list of channels (logical 'and')
+  - Channels: []                   - list of channels (logical 'and')
     - ID                                - id of the channel
     - negationFlag                      - if the value on the channel should be interpreted as negated
+  - priority
 
 For the explanation of list of channelIDs see **Example** section.
 

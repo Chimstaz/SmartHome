@@ -100,14 +100,12 @@ public:
 
   void on(){
     value = 1;
-    digitalWrite(pin, LOW);   // Turn the LED on (Note that LOW is the voltage level
-      // but actually the LED is on; this is because
-      // it is acive low on the ESP-01)
+    digitalWrite(pin, HIGH);
   }
 
   void off(){
     value = 0;
-    digitalWrite(pin, HIGH);  // Turn the LED off by making the voltage HIGH
+    digitalWrite(pin, LOW);
   }
 
   String getValue(){

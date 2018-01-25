@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Configurator {
     public static void main(String[] args){
-        Configuration configuration = ExampleConfigurations.getExamplePriorityGroup();
+        Configuration configuration = ExampleConfigurations.disableSwitchConfiguration();
 
         Gson gson = new GsonBuilder().create();
         gson.toJson(configuration, System.out);

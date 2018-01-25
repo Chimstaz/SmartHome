@@ -37,6 +37,8 @@ protected:
           client.publish(outChannelsList[channels[i]]->c_str(), "2", true);
         }
       }
+      previousValue = v;
+      return;
     }
     if(previousValue == ~0){
       checkPervious = false;
@@ -240,15 +242,13 @@ public:
   }
 
   int getValue(){
-    if(digitalRead(buttonPin) == HIGH){
+    if(digitalRead(disablePin) == HIGH){
       if(digitalRead(buttonPin) == HIGH){
         value = 255;
-      }
-      else{
+      } else {
         value = 0;
       }
-    }
-    else {
+    } else {
       value = ~0;
     }
     return value;

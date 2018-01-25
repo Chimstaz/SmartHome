@@ -7,6 +7,26 @@ import java.util.List;
 
 public class ExampleConfigurations {
 
+    static Configuration disableSwitchConfiguration() {
+        //        DisableSwitch
+        List<Channel> DBChannelList = Collections.singletonList(new Channel("ManualSwitch", 126, 125));
+        List<Object> dbData = new ArrayList<>();
+        dbData.add(5);
+        dbData.add(4);
+        Sensor dbSwitch = new Sensor(DeviceType.DISABLESWITCH.name(), DBChannelList, dbData);
+
+//        LED
+        AndChannels remoteChannel = new AndChannels(2, Collections.singletonList(new Channel("remote", true)));
+        AndChannels manualChannel = new AndChannels(1, Collections.singletonList(new Channel("ManualSwitch", true)));
+
+        List<AndChannels> andChannels = new ArrayList<>();
+        andChannels.add(remoteChannel);
+        andChannels.add(manualChannel);
+        OutDevice led = new OutDevice(DeviceType.LED.name(), andChannels, Collections.singletonList(2));
+
+        return new Configuration(Collections.singletonList(led), Collections.singletonList(dbSwitch));
+    }
+
     static Configuration getExampleConfigurationWithPhotoSensAndDisableSwitch() {
         //        DisableSwitch
         List<Channel> DBChannelList = Collections.singletonList(new Channel("ManualSwitch", 126, 125));
